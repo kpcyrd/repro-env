@@ -1,0 +1,2 @@
+[container]
+image = "rust:1-alpine3.18"
