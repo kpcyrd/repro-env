@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Manifest {
     pub container: ContainerManifest,
+    pub packages: Option<PackagesManifest>,
 }
 
 impl Manifest {
@@ -16,4 +17,11 @@ impl Manifest {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContainerManifest {
     pub image: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PackagesManifest {
+    pub system: String,
+    #[serde(default)]
+    pub dependencies: Vec<String>,
 }

@@ -1,2 +1,6 @@
 [container]
-image = "rust:1-alpine3.18"
+image = "docker.io/library/archlinux"
+
+[packages]
+system = "archlinux"
+dependencies = ["rust-musl"]

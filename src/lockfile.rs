@@ -3,7 +3,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Lockfile {
-    pub container: ContainerLockfile,
+    pub container: ContainerLock,
+    #[serde(rename = "package", skip_serializing_if = "Vec::is_empty")]
+    pub packages: Vec<PackageLock>,
 }
 
 impl Lockfile {
@@ -19,6 +21,17 @@ impl Lockfile {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ContainerLockfile {
+pub struct ContainerLock {
     pub image: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PackageLock {
+    pub name: String,
+    pub version: String,
+    pub system: String,
+    pub url: String,
+    pub sha256: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signature: Option<String>,
 }

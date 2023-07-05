@@ -57,7 +57,7 @@ async fn main() -> Result<()> {
             debug!("Loaded manifest from file: {manifest:?}");
 
             let lockfile = resolver::resolve(&update, &manifest).await?;
-            debug!("Resolved manifest into lockfile: {lockfile:?}");
+            trace!("Resolved manifest into lockfile: {lockfile:?}");
 
             let buf = lockfile.serialize()?;
             fs::write(lockfile_path, buf).await?;

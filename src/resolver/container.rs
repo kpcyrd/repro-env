@@ -2,10 +2,10 @@ use crate::args;
 use crate::container;
 use crate::container::ImageRef;
 use crate::errors::*;
-use crate::lockfile::{ContainerLockfile, Lockfile};
+use crate::lockfile::ContainerLock;
 use crate::manifest::Manifest;
 
-pub async fn resolve(args: &args::Update, manifest: &Manifest) -> Result<Lockfile> {
+pub async fn resolve(args: &args::Update, manifest: &Manifest) -> Result<ContainerLock> {
     let image = manifest.container.image.clone();
 
     if !args.no_pull {
@@ -25,9 +25,7 @@ pub async fn resolve(args: &args::Update, manifest: &Manifest) -> Result<Lockfil
     let pinned_image = image_ref.to_string();
     info!("Resolved image reference {:?} to {:?}", image, pinned_image);
 
-    Ok(Lockfile {
-        container: ContainerLockfile {
-            image: pinned_image,
-        },
+    Ok(ContainerLock {
+        image: pinned_image,
     })
 }
