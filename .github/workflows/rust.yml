@@ -1,0 +1,117 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 9 * * 1'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up cargo cache
+      uses: actions/cache@v3
+      continue-on-error: false
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          ~/.cache/repro-env/pkgs/
+          target/
+        key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-release-
+
+    - name: Build
+      run: make
+
+    - name: Upload binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: bin
+        path: target/x86_64-unknown-linux-musl/release/repro-env
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up cargo cache
+      uses: actions/cache@v3
+      continue-on-error: false
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-release-
+
+    - name: Build
+      run: cargo build --release --verbose
+
+  integration-test:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - folder: tests/rust
+            cmd: cargo build --release
+            output: target/release/rust
+            sha256: 56f1a43e65309bcb413e141ae0612b330c4f8471378c9ea830948002cbf35192
+          - folder: tests/golang
+            cmd: go build .
+            output: hello
+            sha256: e178cc1f0399ea237f757b258c85c2b92a6f26f3a3a687ab42d46bc414c8e939
+
+    name: ${{ matrix.test.folder }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+      - name: Build artifact
+        run: chmod +x bin/repro-env && bin/repro-env -C ${{ matrix.test.folder }} build -- ${{ matrix.test.cmd }}
+      - name: Verify artifact
+        run: cd ${{ matrix.test.folder }} && echo "${{ matrix.test.sha256 }}  ${{ matrix.test.output }}" | sha256sum -c -
+
+  unit-test:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up cargo cache
+      uses: actions/cache@v3
+      continue-on-error: false
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-debug-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-debug-
+
+    - name: Run clippy
+      run: cargo clippy -- -D warnings
+    - name: Run tests
+      run: cargo test --verbose
+
+  fmt:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run cargo fmt
+      run: cargo fmt --all -- --check

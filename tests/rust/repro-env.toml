@@ -1,0 +1,2 @@
+[container]
+image = "docker.io/library/rust:1-alpine"

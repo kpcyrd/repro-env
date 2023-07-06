@@ -97,26 +97,18 @@ pub async fn inspect(image: &str) -> Result<Vec<Image>> {
     Ok(inspect)
 }
 
-pub async fn run(image: &str, cmd: &[&str], mounts: &[(&str, &str)]) -> Result<()> {
-    let mut args = vec![
-        "run".to_string(),
-        "--init".to_string(),
-        "--rm".to_string(),
-        "-w".to_string(),
-        "/build".to_string(),
-    ];
+#[derive(Debug)]
+pub struct Config<'a> {
+    pub init: &'a [String],
+    pub mounts: &'a [(String, String)],
+    pub expose_fuse: bool,
+}
 
-    for (src, dest) in mounts {
-        args.extend(["-v".to_string(), format!("{src}:{dest}")]);
-    }
-
-    args.extend(["--".to_string(), image.to_string()]);
-    for arg in cmd {
-        args.push(arg.to_string());
-    }
-
-    podman(&args, false).await?;
-    Ok(())
+#[derive(Debug, Default)]
+pub struct Exec<'a> {
+    pub capture_stdout: bool,
+    pub cwd: Option<&'a str>,
+    pub user: Option<&'a str>,
 }
 
 #[derive(Debug)]
@@ -125,27 +117,33 @@ pub struct Container {
 }
 
 impl Container {
-    pub async fn create(image: &str, init: &[String], expose_fuse: bool) -> Result<Container> {
-        let bin = init
+    pub async fn create(image: &str, config: Config<'_>) -> Result<Container> {
+        let bin = config
+            .init
             .first()
             .context("Command for container can't be empty")?;
-        let cmd_args = &init[1..];
+        let cmd_args = &config.init[1..];
         let entrypoint = format!("--entrypoint={bin}");
         let mut podman_args = vec![
-            "container",
-            "run",
-            "--detach",
-            "--rm",
-            "--network=host",
-            "-v=/usr/bin/catatonit:/__:ro",
+            "container".to_string(),
+            "run".to_string(),
+            "--detach".to_string(),
+            "--rm".to_string(),
+            "--network=host".to_string(),
+            "-v=/usr/bin/catatonit:/__:ro".to_string(),
         ];
-        if expose_fuse {
-            debug!("Mapping /dev/fuse into the container");
-            podman_args.push("--device=/dev/fuse");
+
+        for (src, dest) in config.mounts {
+            podman_args.push(format!("-v={src}:{dest}"));
         }
 
-        podman_args.extend([&entrypoint, "--", image]);
-        podman_args.extend(cmd_args.iter().map(|s| s.as_str()));
+        if config.expose_fuse {
+            debug!("Mapping /dev/fuse into the container");
+            podman_args.push("--device=/dev/fuse".to_string());
+        }
+
+        podman_args.extend([entrypoint, "--".to_string(), image.to_string()]);
+        podman_args.extend(cmd_args.iter().map(|s| s.to_string()));
 
         let mut out = podman(&podman_args, true).await?;
         if let Some(idx) = memchr::memchr(b'\n', &out) {
@@ -155,24 +153,22 @@ impl Container {
         Ok(Container { id })
     }
 
-    pub async fn exec<I, S>(
-        &self,
-        args: I,
-        capture_stdout: bool,
-        user: Option<String>,
-    ) -> Result<Vec<u8>>
+    pub async fn exec<I, S>(&self, args: I, options: Exec<'_>) -> Result<Vec<u8>>
     where
         I: IntoIterator<Item = S>,
         S: AsRef<str> + fmt::Debug + Clone,
     {
         let args = args.into_iter().collect::<Vec<_>>();
         let mut a = vec!["container".to_string(), "exec".to_string()];
-        if let Some(user) = user {
-            a.extend(["-u".to_string(), user]);
+        if let Some(cwd) = options.cwd {
+            a.extend(["-w".to_string(), cwd.to_string()]);
+        }
+        if let Some(user) = options.user {
+            a.extend(["-u".to_string(), user.to_string()]);
         }
         a.extend(["--".to_string(), self.id.to_string()]);
         a.extend(args.iter().map(|x| x.as_ref().to_string()));
-        let buf = podman(&a, capture_stdout)
+        let buf = podman(&a, options.capture_stdout)
             .await
             .with_context(|| anyhow!("Failed to execute in container: {:?}", args))?;
         Ok(buf)

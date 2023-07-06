@@ -1,9 +1,8 @@
 use clap::Parser;
 use env_logger::Env;
 use repro_env::args::{Args, SubCommand};
-use repro_env::container;
+use repro_env::build;
 use repro_env::errors::*;
-use repro_env::lockfile::Lockfile;
 use repro_env::manifest::Manifest;
 use repro_env::resolver;
 use std::env;
@@ -21,30 +20,14 @@ async fn main() -> Result<()> {
     };
     env_logger::init_from_env(Env::default().default_filter_or(log_level));
 
+    if let Some(path) = args.context {
+        debug!("Changing current directory to {path:?}...");
+        env::set_current_dir(&path)
+            .with_context(|| anyhow!("Failed to switch to directory {path:?}"))?;
+    }
+
     match args.subcommand {
-        SubCommand::Build(build) => {
-            let path = build.file.as_deref().unwrap_or(Path::new("repro-env.lock"));
-
-            let buf = fs::read_to_string(path)
-                .await
-                .with_context(|| anyhow!("Failed to read dependency lockfile: {path:?}"))?;
-
-            let lockfile = Lockfile::deserialize(&buf)?;
-            debug!("Loaded dependency lockfile from file: {lockfile:?}");
-
-            let image = &lockfile.container.image;
-            let cmd = build.cmd.iter().map(|s| s.as_str()).collect::<Vec<_>>();
-
-            let pwd = env::current_dir()?;
-            let pwd = pwd
-                .into_os_string()
-                .into_string()
-                .map_err(|_| anyhow!("Failed to convert current path to utf-8"))?;
-
-            container::run(image, &cmd, &[(&pwd, "/build")]).await?;
-
-            Ok(())
-        }
+        SubCommand::Build(build) => build::build(&build).await,
         SubCommand::Update(update) => {
             let manifest_path = Path::new("repro-env.toml");
             let lockfile_path = Path::new("repro-env.lock");

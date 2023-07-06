@@ -12,7 +12,9 @@ pub async fn resolve(args: &args::Update, manifest: &Manifest) -> Result<Lockfil
     let mut dependencies = Vec::new();
     if let Some(packages) = &manifest.packages {
         match packages.system.as_str() {
-            "archlinux" => archlinux::resolve(packages, &container, &mut dependencies).await?,
+            "archlinux" => {
+                archlinux::resolve(args, packages, &container, &mut dependencies).await?
+            }
             system => bail!("Unknown package system: {system:?}"),
         }
     }

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Lockfile {
     pub container: ContainerLock,
-    #[serde(rename = "package", skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, rename = "package", skip_serializing_if = "Vec::is_empty")]
     pub packages: Vec<PackageLock>,
 }
 

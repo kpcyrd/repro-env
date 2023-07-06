@@ -1,4 +1,5 @@
-use crate::container::Container;
+use crate::args;
+use crate::container::{self, Container};
 use crate::errors::*;
 use crate::lockfile::{ContainerLock, PackageLock};
 use crate::manifest::PackagesManifest;
@@ -128,14 +129,24 @@ pub async fn resolve_dependencies(
     keep: bool,
 ) -> Result<()> {
     info!("Syncing package datatabase...");
-    container.exec(&["pacman", "-Sy"], false, None).await?;
+    container
+        .exec(&["pacman", "-Sy"], container::Exec::default())
+        .await?;
 
     info!("Resolving dependencies...");
     let mut cmd = vec!["pacman", "-Sup", "--print-format", "%r %n %v", "--"];
     for dep in &manifest.dependencies {
         cmd.push(dep.as_str());
     }
-    let buf = container.exec(&cmd, true, None).await?;
+    let buf = container
+        .exec(
+            &cmd,
+            container::Exec {
+                capture_stdout: true,
+                ..Default::default()
+            },
+        )
+        .await?;
     let buf = String::from_utf8(buf).context("Failed to decode pacman output as utf8")?;
 
     let mut dbs = DatabaseCache::default();
@@ -177,16 +188,25 @@ pub async fn resolve_dependencies(
 }
 
 pub async fn resolve(
+    update: &args::Update,
     manifest: &PackagesManifest,
     container: &ContainerLock,
     dependencies: &mut Vec<PackageLock>,
 ) -> Result<()> {
     debug!("Creating container...");
     let init = &["/__".to_string(), "-P".to_string()];
-    let container = Container::create(&container.image, init, false).await?;
+    let container = Container::create(
+        &container.image,
+        container::Config {
+            init,
+            mounts: &[],
+            expose_fuse: false,
+        },
+    )
+    .await?;
     let container_id = container.id.clone();
     let result = tokio::select! {
-        result = resolve_dependencies(&container, manifest, dependencies, false) => result,
+        result = resolve_dependencies(&container, manifest, dependencies, update.keep) => result,
         _ = signal::ctrl_c() => Err(anyhow!("Ctrl-c received")),
     };
     debug!("Removing container...");

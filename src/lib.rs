@@ -1,6 +1,9 @@
 pub mod args;
+pub mod build;
 pub mod container;
 pub mod errors;
+pub mod http;
 pub mod lockfile;
 pub mod manifest;
+pub mod paths;
 pub mod resolver;

@@ -10,6 +10,9 @@ pub struct Args {
     /// Increase logging output (can be used multiple times)
     #[arg(short, long, global = true, action(ArgAction::Count))]
     pub verbose: u8,
+    /// Change the current directory to this path before executing the subcommand
+    #[arg(short = 'C', long)]
+    pub context: Option<PathBuf>,
     #[command(subcommand)]
     pub subcommand: SubCommand,
 }
@@ -27,6 +30,11 @@ pub struct Build {
     /// The dependency lockfile to use
     #[arg(short, long)]
     pub file: Option<PathBuf>,
+    /// Do not delete the build container, wait for ctrl-c
+    #[arg(short, long)]
+    pub keep: bool,
+    /// The command to execute inside the build container
+    #[arg(required = true)]
     pub cmd: Vec<String>,
 }
 
@@ -36,6 +44,9 @@ pub struct Update {
     /// Do not attempt to pull the container tag from registry before resolving it
     #[arg(long)]
     pub no_pull: bool,
+    /// Do not delete the build container, wait for ctrl-c
+    #[arg(short, long)]
+    pub keep: bool,
 }
 
 /// Generate shell completions
