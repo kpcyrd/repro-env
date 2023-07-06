@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up cargo cache
+    - name: 🏗️ Setup build cache
       uses: actions/cache@v3
       continue-on-error: false
       with:
@@ -31,10 +31,13 @@ jobs:
         key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: ${{ runner.os }}-cargo-release-
 
-    - name: Build
+    - name: 🛠️ Build
       run: make
 
-    - name: Upload binary
+    - name: 🔍 SHA256
+      run: sha256sum target/x86_64-unknown-linux-musl/release/repro-env
+
+    - name: 🚢 Upload binary
       uses: actions/upload-artifact@v3
       with:
         name: bin
@@ -81,9 +84,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
-      - name: Build artifact
+      - name: 🏗️ Build artifact
         run: chmod +x bin/repro-env && bin/repro-env -C ${{ matrix.test.folder }} build -- ${{ matrix.test.cmd }}
-      - name: Verify artifact
+      - name: 🔍 Verify artifact
         run: cd ${{ matrix.test.folder }} && echo "${{ matrix.test.sha256 }}  ${{ matrix.test.output }}" | sha256sum -c -
 
   unit-test:
