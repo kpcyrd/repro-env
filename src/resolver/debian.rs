@@ -4,12 +4,15 @@ use crate::errors::*;
 use crate::http;
 use crate::lockfile::{ContainerLock, PackageLock};
 use crate::manifest::PackagesManifest;
-use md5::Md5;
+use crate::paths;
 use serde::Deserialize;
 use sha1::Sha1;
 use sha2::{Digest, Sha256};
+use std::collections::HashMap;
+use std::io::BufRead;
 use std::io::BufReader;
 use std::io::Read;
+use tokio::fs;
 use tokio::signal;
 
 #[derive(Debug, Deserialize)]
@@ -95,6 +98,131 @@ impl PkgInfo {
     }
 }
 
+#[derive(Debug)]
+pub struct PkgEntry {
+    name: String,
+    version: String,
+    sha256: String,
+}
+
+#[derive(Debug, Default)]
+pub struct PkgDatabase {
+    pkgs: HashMap<String, PkgEntry>,
+}
+
+impl PkgDatabase {
+    pub fn import_lz4<R: Read>(&mut self, reader: R) -> Result<()> {
+        let rdr = lz4_flex::frame::FrameDecoder::new(reader);
+        let mut lines = rdr.lines();
+
+        while let Some(line) = lines.next() {
+            let line = line?;
+            trace!("Found line in debian package database: {line:?}");
+            let Some(name) = line.strip_prefix("Package: ") else { bail!("Unexpected line in database (expected `Package: `): {line:?}") };
+            let mut version = None;
+            let mut filename = None;
+            let mut sha256 = None;
+
+            for line in &mut lines {
+                let line = line?;
+                trace!("Found line in debian package database: {line:?}");
+
+                if line.is_empty() {
+                    break;
+                } else if let Some(value) = line.strip_prefix("Version: ") {
+                    version = Some(value.to_string());
+                } else if let Some(value) = line.strip_prefix("Filename: ") {
+                    let value = value
+                        .rsplit_once('/')
+                        .map(|(_, filename)| filename)
+                        .unwrap_or(value);
+                    filename = Some(value.to_string());
+                } else if let Some(value) = line.strip_prefix("SHA256: ") {
+                    sha256 = Some(value.to_string());
+                }
+            }
+
+            let filename = filename.context("Package database entry is missing filename")?;
+            let old = self.pkgs.insert(
+                filename.to_string(),
+                PkgEntry {
+                    name: name.to_string(),
+                    version: version.context("Package database entry is missing version")?,
+                    sha256: sha256.context("Package database entry is missing sha256")?,
+                },
+            );
+
+            if let Some(old) = old {
+                bail!("Filename is not unique in package database: filename={filename:?}, {old:?}");
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn import_tar(buf: &[u8]) -> Result<Self> {
+        let mut tar = tar::Archive::new(buf);
+
+        let mut db = Self::default();
+        for entry in tar.entries()? {
+            let entry = entry?;
+            let path = entry
+                .header()
+                .path()
+                .context("Filename was not valid utf-8")?;
+            let Some(extension) = path.extension() else { continue };
+
+            if extension.to_str() == Some("lz4") {
+                db.import_lz4(entry)?;
+            }
+        }
+
+        Ok(db)
+    }
+
+    pub fn find_by_filename(&self, filename: &str) -> Result<&PkgEntry> {
+        let entry = self
+            .pkgs
+            .get(filename)
+            .context("Failed to find package database entry for: {filename:?}")?;
+        Ok(entry)
+    }
+
+    pub fn find_by_apt_output(&self, line: &str) -> Result<(String, &PkgEntry)> {
+        let mut line = line.split(' ');
+        let url = line.next().context("Missing url in apt output")?;
+        let filename = line.next().context("Missing filename in apt output")?;
+        let _size = line.next().context("Missing size in apt output")?;
+        let _md5sum = line.next().context("Missing md5sum in apt output")?;
+
+        if let Some(trailing) = line.next() {
+            bail!("Trailing data in apt output: {trailing:?}");
+        }
+
+        let url = url.strip_prefix('\'').unwrap_or(url);
+        let url = url.strip_suffix('\'').unwrap_or(url);
+        debug!("Detected dependency filename={filename:?} url={url:?}");
+
+        let package = {
+            let url = url
+                .parse::<reqwest::Url>()
+                .context("Failed to parse as url")?;
+            let filename = url
+                .path_segments()
+                .context("Failed to get path from url")?
+                .last()
+                .context("Failed to get filename from url")?;
+            let filename =
+                urlencoding::decode(filename).context("Failed to url decode filename")?;
+            self.find_by_filename(&filename).with_context(|| {
+                anyhow!("Failed to find package database entry for file: {filename:?}")
+            })?
+        };
+
+        Ok((url.to_string(), package))
+    }
+}
+
 pub async fn resolve_dependencies(
     container: &Container,
     manifest: &PackagesManifest,
@@ -105,6 +233,10 @@ pub async fn resolve_dependencies(
     container
         .exec(&["apt-get", "update"], container::Exec::default())
         .await?;
+
+    info!("Importing package database...");
+    let tar = container.tar("/var/lib/apt/lists").await?;
+    let db = PkgDatabase::import_tar(&tar)?;
 
     info!("Resolving dependencies...");
     let mut cmd = vec![
@@ -130,45 +262,34 @@ pub async fn resolve_dependencies(
     let buf = String::from_utf8(buf).context("Failed to decode pacman output as utf8")?;
 
     let client = http::Client::new()?;
+    let pkgs_cache_dir = paths::pkgs_cache_dir()?;
     for line in buf.lines() {
-        let mut line = line.split(' ');
-        let url = line.next().context("Missing url in apt output")?;
-        let filename = line.next().context("Missing filename in apt output")?;
-        let _size = line.next().context("Missing size in apt output")?;
-        let md5sum = line.next().context("Missing md5sum in apt output")?;
+        let (url, package) = db.find_by_apt_output(line)?;
 
-        if let Some(trailing) = line.next() {
-            bail!("Trailing data in apt output: {trailing:?}");
-        }
+        let path = pkgs_cache_dir.sha256_path(&package.sha256)?;
+        let buf = if path.exists() {
+            fs::read(path).await?
+        } else {
+            let buf = client.fetch(&url).await?.to_vec();
 
-        let url = url.strip_prefix('\'').unwrap_or(url);
-        let url = url.strip_suffix('\'').unwrap_or(url);
-        debug!("Detected dependency filename={filename:?} url={url:?} md5sum={md5sum:?}");
-
-        let buf = client.fetch(url).await?;
-
-        // TODO: we fail-open here because for debian-security it just prints nothing 🤷
-        if !md5sum.is_empty() {
-            // TODO: calculate hash during download
-            let mut hasher = Md5::new();
+            let mut hasher = Sha256::new();
             hasher.update(&buf);
-            let md5 = hex::encode(hasher.finalize());
+            let result = hex::encode(hasher.finalize());
 
-            if Some(md5.as_str()) != md5sum.strip_prefix("MD5Sum:") {
-                // TODO: md5 should not be used here
-                bail!("md5 checkout does not match");
+            if result != package.sha256 {
+                bail!(
+                    "Mismatch of sha256 checksum, expected={}, downloaded={}",
+                    package.sha256,
+                    result
+                );
             }
-        }
 
-        let pkginfo = PkgInfo::parse_deb(&buf[..])?;
+            buf
+        };
 
         let mut hasher = Sha1::new();
         hasher.update(&buf);
         let sha1 = hex::encode(hasher.finalize());
-
-        let mut hasher = Sha256::new();
-        hasher.update(&buf);
-        let sha256 = hex::encode(hasher.finalize());
 
         let url = format!("https://snapshot.debian.org/mr/file/{sha1}/info");
         let buf = client
@@ -193,11 +314,11 @@ pub async fn resolve_dependencies(
             format!("https://snapshot.debian.org/archive/{archive_name}/{first_seen}{path}/{name}");
 
         dependencies.push(PackageLock {
-            name: pkginfo.name,
-            version: pkginfo.version,
+            name: package.name.to_string(),
+            version: package.version.to_string(),
             system: "debian".to_string(),
             url,
-            sha256,
+            sha256: package.sha256.to_string(),
             signature: None,
         });
     }

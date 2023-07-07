@@ -199,6 +199,21 @@ impl Container {
         Ok(buf)
     }
 
+    pub async fn tar(&self, path: &str) -> Result<Vec<u8>> {
+        let a = vec![
+            "container".to_string(),
+            "cp".to_string(),
+            "--".to_string(),
+            format!("{}:{}", self.id, path),
+            "-".to_string(),
+        ];
+        let buf = podman(&a, true)
+            .await
+            .with_context(|| anyhow!("Failed to read from container: {:?}", path))?;
+
+        Ok(buf)
+    }
+
     pub async fn kill(self) -> Result<()> {
         podman(&["container", "kill", &self.id], true)
             .await

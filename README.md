@@ -95,8 +95,6 @@ signature = "iIsEABYIADMWIQQGaHodnU+rCLUP2Ss7lKgOUKR3xwUCZExVKRUcaGVmdGlnQGFyY2h
 
 ## Packages: Debian
 
-> ⚠️ Due to limitations in `apt-get --print-uris` this integration currently relies on **md5** for security ⚠️
-
 Debian is a widely accepted choice and hosts an archive of all their packages at https://snapshot.debian.org/. You can create a `[packages]` section in your **repro-env.toml** with `system = "debian"` to install additional packages with apt-get.
 
 ```toml
@@ -119,18 +117,18 @@ The resolved **repro-env.lock** is going to contain the sha256 of the resolved c
 image = "debian@sha256:3d868b5eb908155f3784317b3dda2941df87bbbbaa4608f84881de66d9bb297b"
 
 [[package]]
-name = "binutils-common_2.40-2_amd64.deb"
-version = "???"
+name = "binutils"
+version = "2.40-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils_2.40-2_amd64.deb"
+sha256 = "83c3e20b53e1fbd84d764c3ba27d26a0376e361ae5d7fb37120196934dd87424"
+
+[[package]]
+name = "binutils-common"
+version = "2.40-2"
 system = "debian"
 url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-common_2.40-2_amd64.deb"
 sha256 = "ab314134f43a0891a48f69a9bc33d825da748fa5e0ba2bebb7a5c491b026f1a0"
-
-[[package]]
-name = "binutils-x86-64-linux-gnu_2.40-2_amd64.deb"
-version = "???"
-system = "debian"
-url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-x86-64-linux-gnu_2.40-2_amd64.deb"
-sha256 = "2d7ea8a570d768224d7f2424abbe6f373d2154865a1fa7f56c80d43ecf492521"
 
 # [...]
 ```
