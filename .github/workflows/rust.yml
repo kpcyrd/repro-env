@@ -37,7 +37,7 @@ jobs:
     - name: 🔍 SHA256
       run: sha256sum target/x86_64-unknown-linux-musl/release/repro-env
 
-    - name: 🚢 Upload binary
+    - name: 📦 Upload binary
       uses: actions/upload-artifact@v3
       with:
         name: bin
