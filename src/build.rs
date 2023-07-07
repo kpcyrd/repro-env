@@ -4,6 +4,7 @@ use crate::errors::*;
 use crate::http;
 use crate::lockfile::{Lockfile, PackageLock};
 use crate::paths;
+use crate::pkgs;
 use data_encoding::BASE64;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -61,6 +62,38 @@ async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
     Ok(())
 }
 
+pub fn verify_pin_metadata(pkg: &[u8], pin: &PackageLock) -> Result<()> {
+    let pkg = match pin.system.as_str() {
+        "archlinux" => {
+            pkgs::archlinux::parse(&pkg[..]).context("Failed to parse data as archlinux package")?
+        }
+        "debian" => {
+            pkgs::debian::parse(&pkg[..]).context("Failed to parse data as debian package")?
+        }
+        system => bail!("Unknown package system: {system:?}"),
+    };
+
+    debug!("Parsed embedded metadata from package: {pkg:?}");
+
+    if pin.name != pkg.name {
+        bail!(
+            "Package name in metadata doesn't match lockfile: expected={:?}, embedded={:?}",
+            pin.name,
+            pkg.name
+        );
+    }
+
+    if pin.version != pkg.version {
+        bail!(
+            "Package version in metadata doesn't match lockfile: expected={:?}, embedded={:?}",
+            pin.version,
+            pkg.version
+        );
+    }
+
+    Ok(())
+}
+
 pub async fn setup_extra_folder(
     path: &Path,
     dependencies: &[PackageLock],
@@ -69,6 +102,7 @@ pub async fn setup_extra_folder(
 
     let mut install = HashMap::<_, Vec<_>>::new();
     for package in dependencies {
+        // determine filename
         let url = package
             .url
             .parse::<reqwest::Url>()
@@ -82,6 +116,7 @@ pub async fn setup_extra_folder(
             bail!("Filename from url is empty");
         }
 
+        // setup /extra/ directory
         let source = pkgs_cache_dir.sha256_path(&package.sha256)?;
         let dest = path.join(filename);
         let dest_sig = path.join(filename.to_owned() + ".sig");
@@ -94,6 +129,7 @@ pub async fn setup_extra_folder(
                 .context("Failed to copy package from cache to temporary folder")?;
         }
 
+        // setup extra data
         match package.system.as_str() {
             "archlinux" => {
                 let signature = package
@@ -112,6 +148,10 @@ pub async fn setup_extra_folder(
             "debian" => (),
             system => bail!("Unknown package system: {system:?}"),
         }
+
+        // verify pkg content matches pin metadata
+        let pkg = fs::read(&dest).await?;
+        verify_pin_metadata(&pkg, &package)?;
 
         install
             .entry(package.system.clone())

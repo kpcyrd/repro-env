@@ -1,5 +1,5 @@
 build:
-	cargo run -- build -- make build2
+	cargo run --release -- build -- make build2
 	sha256sum target/x86_64-unknown-linux-musl/release/repro-env
 
 build2:
