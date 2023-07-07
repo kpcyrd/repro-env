@@ -47,6 +47,12 @@ The final executable is available at this location:
 ./target/x86_64-unknown-linux-musl/release/repro-env --help
 ```
 
+## Download
+
+- [repro-env x86_64 statically linked](https://github.com/kpcyrd/repro-env/releases/download/v0.1.0/repro-env) (sha256: `5b7e043dea9c2a0afc0180be9263dd5c5b7e69c649749b43c132885e4eca623f`)
+
+[![](https://repology.org/badge/vertical-allrepos/repro-env.svg)](https://repology.org/project/repro-env/versions)
+
 ## Packages: Arch Linux
 
 Arch Linux hosts a comprehensive collection of recent compilers at https://archive.archlinux.org. You can create a `[packages]` section in your **repro-env.toml** with `system = "archlinux"` to install additional packages with pacman.
@@ -93,7 +99,7 @@ There are no inherent bootstrapping challenges, you can use any recent Rust comp
 
 ## Reproducible Builds
 
-All pre-compiled binaries can be reproduced from source code.
+All [pre-compiled binaries](https://github.com/kpcyrd/repro-env/releases) can be reproduced from source code:
 
 ```
 % wget https://github.com/kpcyrd/repro-env/releases/download/v0.1.0/repro-env
