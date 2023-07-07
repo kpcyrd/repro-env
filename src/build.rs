@@ -67,9 +67,7 @@ pub fn verify_pin_metadata(pkg: &[u8], pin: &PackageLock) -> Result<()> {
         "archlinux" => {
             pkgs::archlinux::parse(pkg).context("Failed to parse data as archlinux package")?
         }
-        "debian" => {
-            pkgs::debian::parse(pkg).context("Failed to parse data as debian package")?
-        }
+        "debian" => pkgs::debian::parse(pkg).context("Failed to parse data as debian package")?,
         system => bail!("Unknown package system: {system:?}"),
     };
 
