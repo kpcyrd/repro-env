@@ -3,4 +3,4 @@ image = "debian:bookworm"
 
 [packages]
 system = "debian"
-dependencies = ["gcc"]
+dependencies = ["gcc", "libc6-dev"]

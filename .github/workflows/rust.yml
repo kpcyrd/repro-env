@@ -78,10 +78,10 @@ jobs:
             cmd: go build .
             output: hello
             sha256: e178cc1f0399ea237f757b258c85c2b92a6f26f3a3a687ab42d46bc414c8e939
-          - folder: tests/debian
-            cmd: gcc -o hello hello.c
+          - folder: examples/debian
+            cmd: gcc -static -o hello hello.c
             output: hello
-            sha256: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+            sha256: 3a3d89ab8a7cf8a7355eb6c2727e1b75711b015b7fa67b91ebdafbe28896f9f6
 
     name: ${{ matrix.test.folder }}
     runs-on: ubuntu-22.04

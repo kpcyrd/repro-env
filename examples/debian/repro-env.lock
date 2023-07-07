@@ -33,7 +33,7 @@ sha256 = "6f8c90780705bb2434d02e2360881b581319307ccde43abcd1f781e05928db04"
 name = "cpp_4%3a12.2.0-3_amd64.deb"
 version = "???"
 system = "debian"
-url = "https://snapshot.debian.org/archive/debian/20230108T155109Z/pool/main/g/gcc-defaults/cpp_4%3a12.2.0-3_amd64.deb"
+url = "https://snapshot.debian.org/archive/debian/20230108T155109Z/pool/main/g/gcc-defaults/cpp_12.2.0-3_amd64.deb"
 sha256 = "a63db920f7aa1857a57beab185423deffb6111fa09437a99bbb4ef724fb7ba78"
 
 [[package]]
@@ -47,7 +47,7 @@ sha256 = "54f7a9e77c6b12bafa07ffb1d4c42933a416748119f169514c1ed1119d51f4b3"
 name = "gcc_4%3a12.2.0-3_amd64.deb"
 version = "???"
 system = "debian"
-url = "https://snapshot.debian.org/archive/debian/20230108T155109Z/pool/main/g/gcc-defaults/gcc_4%3a12.2.0-3_amd64.deb"
+url = "https://snapshot.debian.org/archive/debian/20230108T155109Z/pool/main/g/gcc-defaults/gcc_12.2.0-3_amd64.deb"
 sha256 = "bb63b0fb2797e2a3a294dab8a02614930c557ec1f4ea96637c244b8b5f87e630"
 
 [[package]]
@@ -72,11 +72,32 @@ url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/b
 sha256 = "fcf55b99e5f8a78f3c8ce9b6957f1024f394cf20c196b100d308a57e43547710"
 
 [[package]]
+name = "libc-dev-bin_2.36-9_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230411T030420Z/pool/main/g/glibc/libc-dev-bin_2.36-9_amd64.deb"
+sha256 = "2b3b715f8887fe41fb1aa7437d380d1d78a87c6c06e9752ea0fd2b40a27a997f"
+
+[[package]]
+name = "libc6-dev_2.36-9_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230411T030420Z/pool/main/g/glibc/libc6-dev_2.36-9_amd64.deb"
+sha256 = "fbb98612d020ffd47ed7b327dc2b33e3d29a784b171e952367924e5be3c3752f"
+
+[[package]]
 name = "libcc1-0_12.2.0-14_amd64.deb"
 version = "???"
 system = "debian"
 url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libcc1-0_12.2.0-14_amd64.deb"
 sha256 = "1379ab846489b322bb45602d34ca8e2791e1d342fd53d49143f6355430934efd"
+
+[[package]]
+name = "libcrypt-dev_1%3a4.4.33-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230107T030552Z/pool/main/libx/libxcrypt/libcrypt-dev_4.4.33-2_amd64.deb"
+sha256 = "81ccd29130f75a9e3adabc80e61921abff42f76761e1f792fa2d1bb69af7f52f"
 
 [[package]]
 name = "libctf-nobfd0_2.40-2_amd64.deb"
@@ -114,6 +135,13 @@ url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/b
 sha256 = "a3c4092d84f19d13caf90f3c96eec53db8819f0e3a5247434944d71ed75fa53d"
 
 [[package]]
+name = "libgssapi-krb5-2_1.20.1-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230517T030521Z/pool/main/k/krb5/libgssapi-krb5-2_1.20.1-2_amd64.deb"
+sha256 = "52e7c4645098213967be55fa6db89f1cffb584d1d66550a0a29fe2a7333dfa1c"
+
+[[package]]
 name = "libisl23_0.25-1_amd64.deb"
 version = "???"
 system = "debian"
@@ -133,6 +161,34 @@ version = "???"
 system = "debian"
 url = "https://snapshot.debian.org/archive/debian/20220414T030009Z/pool/main/j/jansson/libjansson4_2.14-2_amd64.deb"
 sha256 = "3fc9742f9f1a37bcb9931df6074b4d1483419ef832ad5349f47323e75fc27864"
+
+[[package]]
+name = "libk5crypto3_1.20.1-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230517T030521Z/pool/main/k/krb5/libk5crypto3_1.20.1-2_amd64.deb"
+sha256 = "e1ce4cf7d925c25ec3d6be61205e9af889815ce6131db8ad925b3db38363da6b"
+
+[[package]]
+name = "libkeyutils1_1.6.3-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20221220T035734Z/pool/main/k/keyutils/libkeyutils1_1.6.3-2_amd64.deb"
+sha256 = "cfac89e6a7a54ff3c6a4f843310e25efeddaa771baeae470bd98bd588c373563"
+
+[[package]]
+name = "libkrb5-3_1.20.1-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230517T030521Z/pool/main/k/krb5/libkrb5-3_1.20.1-2_amd64.deb"
+sha256 = "27dd4ce7e9542ad88a6d3856bccfaf1d383bf9cf90d888cce762dd150cceb136"
+
+[[package]]
+name = "libkrb5support0_1.20.1-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230517T030521Z/pool/main/k/krb5/libkrb5support0_1.20.1-2_amd64.deb"
+sha256 = "bd36a4f9b1a9b1d83cc93a109b817bc20f885b76b881168b16a15e8262f1f2c8"
 
 [[package]]
 name = "liblsan0_12.2.0-14_amd64.deb"
@@ -156,11 +212,53 @@ url = "https://snapshot.debian.org/archive/debian/20230114T205500Z/pool/main/m/m
 sha256 = "37b7a2b4e78890b6a074777f27b96c84f58e81558ba08410c2b6c0ca4a4ad77b"
 
 [[package]]
+name = "libnsl-dev_1.3.0-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20201010T205029Z/pool/main/libn/libnsl/libnsl-dev_1.3.0-2_amd64.deb"
+sha256 = "bb81a188c119cd7fdebae723cbc95887b6c549b2fe4fb7e268a9c8846444da99"
+
+[[package]]
+name = "libnsl2_1.3.0-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20201010T205029Z/pool/main/libn/libnsl/libnsl2_1.3.0-2_amd64.deb"
+sha256 = "c0d83437fdb016cb289436f49f28a36be44b3e8f1f2498c7e3a095f709c0d6f8"
+
+[[package]]
 name = "libquadmath0_12.2.0-14_amd64.deb"
 version = "???"
 system = "debian"
 url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libquadmath0_12.2.0-14_amd64.deb"
 sha256 = "4e21728bbb1f170f35a5d60fe26adadb48c436f1b5fd977454e632668074169c"
+
+[[package]]
+name = "libssl3_3.0.9-1_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230531T025815Z/pool/main/o/openssl/libssl3_3.0.9-1_amd64.deb"
+sha256 = "45407e1164813c6473f4c1113d26d2b8d776ed607f88e29169b91b64f4035577"
+
+[[package]]
+name = "libtirpc-common_1.3.3+ds-1_all.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20220812T092925Z/pool/main/libt/libtirpc/libtirpc-common_1.3.3+ds-1_all.deb"
+sha256 = "3e3ef129b4bf61513144236e15e1b4ec57fa5ae3dc8a72137abdbefb7a63af85"
+
+[[package]]
+name = "libtirpc-dev_1.3.3+ds-1_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20220812T092925Z/pool/main/libt/libtirpc/libtirpc-dev_1.3.3+ds-1_amd64.deb"
+sha256 = "03326473eed54ffa27efae19aa5d6aeb402930968f869f318445513093691d55"
+
+[[package]]
+name = "libtirpc3_1.3.3+ds-1_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20220812T092925Z/pool/main/libt/libtirpc/libtirpc3_1.3.3+ds-1_amd64.deb"
+sha256 = "2a46d5a5e9486da11ffeff5740931740d6deae4f92cd6098df060dc5dff1e1c7"
 
 [[package]]
 name = "libtsan2_12.2.0-14_amd64.deb"
@@ -175,3 +273,17 @@ version = "???"
 system = "debian"
 url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libubsan1_12.2.0-14_amd64.deb"
 sha256 = "e46fbb519b4342c114b2fa19bcdb736e294eadc769fae75d6bc2e94a4db67f15"
+
+[[package]]
+name = "linux-libc-dev_6.1.37-1_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian-security/20230705T195545Z/pool/updates/main/l/linux/linux-libc-dev_6.1.37-1_amd64.deb"
+sha256 = "1ce6d7c4e85c285a33348a9fe9913f6091713e56a1b786a81b4b7fdfd97e1e09"
+
+[[package]]
+name = "rpcsvc-proto_1.4.3-1_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20221203T150621Z/pool/main/r/rpcsvc-proto/rpcsvc-proto_1.4.3-1_amd64.deb"
+sha256 = "32ac0692694f8a34cc90c895f4fc739680fb2ef0e2d4870a68833682bf1c81a3"

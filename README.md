@@ -18,8 +18,8 @@ image = "rust@sha256:22760a18d52be83a74f5df8b190b8e9baa1e6ce7d9bda40630acc8ba532
 
 You commit both into your git repository to document:
 
-- **repro-env.toml**: which docker image tag you intend to follow (like `Cargo.toml`)
-- **repro-env.lock**: which specific image you use for your release build (like `Cargo.lock`)
+- **repro-env.toml**: which container image tag you intend to follow (think `Cargo.toml`)
+- **repro-env.lock**: which specific image you use for your release build (think `Cargo.lock`)
 
 The .lock file is auto-generated and can be refreshed with a simple command:
 
@@ -93,9 +93,51 @@ sha256 = "5a4854cdac8312dbf72fb87795bcc36bfb34e9218944966e5ac2e62319bbcf22"
 signature = "iIsEABYIADMWIQQGaHodnU+rCLUP2Ss7lKgOUKR3xwUCZExVKRUcaGVmdGlnQGFyY2hsaW51eC5vcmcACgkQO5SoDlCkd8cCMQD/W59RkOVPZDXlnmyY27jW61GC86hXOkSLOKa7XMQtpBoBALSugCkG1clSo/EQDbnuS+UY3268HNBvz6mF6i/hhEsB"
 ```
 
+## Packages: Debian
+
+> ⚠️ Due to limitations in `apt-get --print-uris` this integration currently relies on **md5** for security ⚠️
+
+Debian is a widely accepted choice and hosts an archive of all their packages at https://snapshot.debian.org/. You can create a `[packages]` section in your **repro-env.toml** with `system = "debian"` to install additional packages with apt-get.
+
+```toml
+# repro-env.toml
+[container]
+image = "debian:bookworm"
+
+[packages]
+system = "debian"
+dependencies = ["gcc", "libc6-dev"]
+```
+
+Note this only works with **official** debian packages (not ubuntu).
+
+The resolved **repro-env.lock** is going to contain the sha256 of the resolved container image you use as a base, and a list of `[[package]]` that should be installed/upgraded inside of the container before starting the build.
+
+```toml
+# repro-env.lock
+[container]
+image = "debian@sha256:3d868b5eb908155f3784317b3dda2941df87bbbbaa4608f84881de66d9bb297b"
+
+[[package]]
+name = "binutils-common_2.40-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-common_2.40-2_amd64.deb"
+sha256 = "ab314134f43a0891a48f69a9bc33d825da748fa5e0ba2bebb7a5c491b026f1a0"
+
+[[package]]
+name = "binutils-x86-64-linux-gnu_2.40-2_amd64.deb"
+version = "???"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-x86-64-linux-gnu_2.40-2_amd64.deb"
+sha256 = "2d7ea8a570d768224d7f2424abbe6f373d2154865a1fa7f56c80d43ecf492521"
+
+# [...]
+```
+
 ## Bootstrapping
 
-There are no inherent bootstrapping challenges, you can use any recent Rust compiler to build a working **repro-env** binary. This binary can then setup any other build environment and is able to build a bit-for-bit identical copy of the official release binaries hosted on github.
+There are no inherent bootstrapping challenges, you can use any recent Rust compiler to build a working **repro-env** binary. This binary can then setup any other build environment (including it's own) and is able to build a bit-for-bit identical copy of the official release binaries hosted on github.
 
 ## Reproducible Builds
 

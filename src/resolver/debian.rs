@@ -76,14 +76,17 @@ pub async fn resolve_dependencies(
 
         let buf = client.fetch(url).await?;
 
-        // TODO: calculate hash during download
-        let mut hasher = Md5::new();
-        hasher.update(&buf);
-        let md5 = hex::encode(hasher.finalize());
+        // TODO: we fail-open here because for debian-security it just prints nothing 🤷
+        if !md5sum.is_empty() {
+            // TODO: calculate hash during download
+            let mut hasher = Md5::new();
+            hasher.update(&buf);
+            let md5 = hex::encode(hasher.finalize());
 
-        if Some(md5.as_str()) != md5sum.strip_prefix("MD5Sum:") {
-            // TODO: md5 should not be used here
-            bail!("md5 checkout does not match");
+            if Some(md5.as_str()) != md5sum.strip_prefix("MD5Sum:") {
+                // TODO: md5 should not be used here
+                bail!("md5 checkout does not match");
+            }
         }
 
         let mut hasher = Sha1::new();
@@ -108,11 +111,13 @@ pub async fn resolve_dependencies(
             .first()
             .context("Could not find package in any snapshots")?;
 
+        let archive_name = &pkg.archive_name;
         let first_seen = &pkg.first_seen;
         let path = &pkg.path;
+        let name = &pkg.name;
 
         let url =
-            format!("https://snapshot.debian.org/archive/debian/{first_seen}{path}/{filename}");
+            format!("https://snapshot.debian.org/archive/{archive_name}/{first_seen}{path}/{name}");
 
         dependencies.push(PackageLock {
             name: filename.to_string(),
