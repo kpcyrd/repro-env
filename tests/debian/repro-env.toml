@@ -1,0 +1,6 @@
+[container]
+image = "debian:bookworm"
+
+[packages]
+system = "debian"
+dependencies = ["gcc"]

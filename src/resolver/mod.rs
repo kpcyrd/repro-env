@@ -1,5 +1,6 @@
 pub mod archlinux;
 pub mod container;
+pub mod debian;
 
 use crate::args;
 use crate::errors::*;
@@ -15,6 +16,7 @@ pub async fn resolve(args: &args::Update, manifest: &Manifest) -> Result<Lockfil
             "archlinux" => {
                 archlinux::resolve(args, packages, &container, &mut dependencies).await?
             }
+            "debian" => debian::resolve(args, packages, &container, &mut dependencies).await?,
             system => bail!("Unknown package system: {system:?}"),
         }
     }
