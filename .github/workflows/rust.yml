@@ -70,11 +70,11 @@ jobs:
       fail-fast: false
       matrix:
         test:
-          - folder: tests/rust
+          - folder: examples/rust
             cmd: cargo build --release
             output: target/release/rust
             sha256: 56f1a43e65309bcb413e141ae0612b330c4f8471378c9ea830948002cbf35192
-          - folder: tests/golang
+          - folder: examples/golang
             cmd: go build .
             output: hello
             sha256: e178cc1f0399ea237f757b258c85c2b92a6f26f3a3a687ab42d46bc414c8e939
