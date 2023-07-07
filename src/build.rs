@@ -6,6 +6,7 @@ use crate::lockfile::{Lockfile, PackageLock};
 use crate::paths;
 use data_encoding::BASE64;
 use sha2::{Digest, Sha256};
+use std::collections::HashMap;
 use std::env;
 use std::path::Path;
 use tempfile::TempDir;
@@ -60,10 +61,13 @@ async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
     Ok(())
 }
 
-pub async fn setup_extra_folder(path: &Path, dependencies: &[PackageLock]) -> Result<Vec<String>> {
+pub async fn setup_extra_folder(
+    path: &Path,
+    dependencies: &[PackageLock],
+) -> Result<HashMap<String, Vec<String>>> {
     let pkgs_cache_dir = paths::pkgs_cache_dir()?;
 
-    let mut install = Vec::new();
+    let mut install = HashMap::<_, Vec<_>>::new();
     for package in dependencies {
         let url = package
             .url
@@ -90,20 +94,29 @@ pub async fn setup_extra_folder(path: &Path, dependencies: &[PackageLock]) -> Re
                 .context("Failed to copy package from cache to temporary folder")?;
         }
 
-        let signature = package
-            .signature
-            .as_ref()
-            .context("Package in dependency lockfile is missing signature")?;
-        let signature = BASE64
-            .decode(signature.as_bytes())
-            .context("Failed to decode signature as base64")?;
-        debug!(
-            "Writing signature ({} bytes) to {dest_sig:?}...",
-            signature.len()
-        );
-        fs::write(dest_sig, signature).await?;
+        match package.system.as_str() {
+            "archlinux" => {
+                let signature = package
+                    .signature
+                    .as_ref()
+                    .context("Package in dependency lockfile is missing signature")?;
+                let signature = BASE64
+                    .decode(signature.as_bytes())
+                    .context("Failed to decode signature as base64")?;
+                debug!(
+                    "Writing signature ({} bytes) to {dest_sig:?}...",
+                    signature.len()
+                );
+                fs::write(dest_sig, signature).await?;
+            }
+            "debian" => (),
+            system => bail!("Unknown package system: {system:?}"),
+        }
 
-        install.push(filename.to_string());
+        install
+            .entry(package.system.clone())
+            .or_default()
+            .push(filename.to_string());
     }
 
     Ok(install)
@@ -112,21 +125,41 @@ pub async fn setup_extra_folder(path: &Path, dependencies: &[PackageLock]) -> Re
 pub async fn run_build(
     container: &Container,
     build: &args::Build,
-    extra: Option<&(TempDir, Vec<String>)>,
+    extra: Option<&(TempDir, HashMap<String, Vec<String>>)>,
 ) -> Result<()> {
     if let Some((_, pkgs)) = extra {
-        let mut cmd = vec![
-            "pacman".to_string(),
-            "-U".to_string(),
-            "--noconfirm".to_string(),
-            "--".to_string(),
-        ];
-        for pkg in pkgs {
-            cmd.push(format!("/extra/{pkg}"));
-        }
+        for (system, pkgs) in pkgs {
+            match system.as_str() {
+                "archlinux" => {
+                    let mut cmd = vec![
+                        "pacman".to_string(),
+                        "-U".to_string(),
+                        "--noconfirm".to_string(),
+                        "--".to_string(),
+                    ];
+                    for pkg in pkgs {
+                        cmd.push(format!("/extra/{pkg}"));
+                    }
 
-        info!("Installing dependencies...");
-        container.exec(&cmd, container::Exec::default()).await?;
+                    info!("Installing dependencies...");
+                    container.exec(&cmd, container::Exec::default()).await?;
+                }
+                "debian" => {
+                    let mut cmd = vec![
+                        "apt-get".to_string(),
+                        "install".to_string(),
+                        "--".to_string(),
+                    ];
+                    for pkg in pkgs {
+                        cmd.push(format!("/extra/{pkg}"));
+                    }
+
+                    info!("Installing dependencies...");
+                    container.exec(&cmd, container::Exec::default()).await?;
+                }
+                system => bail!("Unknown package system: {system:?}"),
+            }
+        }
     }
 
     info!("Running build...");

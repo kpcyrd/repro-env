@@ -1,0 +1,289 @@
+[container]
+image = "debian@sha256:3d868b5eb908155f3784317b3dda2941df87bbbbaa4608f84881de66d9bb297b"
+
+[[package]]
+name = "binutils"
+version = "2.40-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils_2.40-2_amd64.deb"
+sha256 = "83c3e20b53e1fbd84d764c3ba27d26a0376e361ae5d7fb37120196934dd87424"
+
+[[package]]
+name = "binutils-common"
+version = "2.40-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-common_2.40-2_amd64.deb"
+sha256 = "ab314134f43a0891a48f69a9bc33d825da748fa5e0ba2bebb7a5c491b026f1a0"
+
+[[package]]
+name = "binutils-x86-64-linux-gnu"
+version = "2.40-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-x86-64-linux-gnu_2.40-2_amd64.deb"
+sha256 = "2d7ea8a570d768224d7f2424abbe6f373d2154865a1fa7f56c80d43ecf492521"
+
+[[package]]
+name = "cpp"
+version = "4:12.2.0-3"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230108T155109Z/pool/main/g/gcc-defaults/cpp_12.2.0-3_amd64.deb"
+sha256 = "a63db920f7aa1857a57beab185423deffb6111fa09437a99bbb4ef724fb7ba78"
+
+[[package]]
+name = "cpp-12"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/cpp-12_12.2.0-14_amd64.deb"
+sha256 = "6f8c90780705bb2434d02e2360881b581319307ccde43abcd1f781e05928db04"
+
+[[package]]
+name = "gcc"
+version = "4:12.2.0-3"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230108T155109Z/pool/main/g/gcc-defaults/gcc_12.2.0-3_amd64.deb"
+sha256 = "bb63b0fb2797e2a3a294dab8a02614930c557ec1f4ea96637c244b8b5f87e630"
+
+[[package]]
+name = "gcc-12"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/gcc-12_12.2.0-14_amd64.deb"
+sha256 = "54f7a9e77c6b12bafa07ffb1d4c42933a416748119f169514c1ed1119d51f4b3"
+
+[[package]]
+name = "libasan8"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libasan8_12.2.0-14_amd64.deb"
+sha256 = "30b4972cc88a4ff0fba9e08e6d476de13b109af9e4b826d130bdc72771d6e373"
+
+[[package]]
+name = "libatomic1"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libatomic1_12.2.0-14_amd64.deb"
+sha256 = "a35f744972476c4b425e006d5c0752d917f3a6f48ce1268723a29e65a65b78a6"
+
+[[package]]
+name = "libbinutils"
+version = "2.40-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/libbinutils_2.40-2_amd64.deb"
+sha256 = "fcf55b99e5f8a78f3c8ce9b6957f1024f394cf20c196b100d308a57e43547710"
+
+[[package]]
+name = "libc-dev-bin"
+version = "2.36-9"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230411T030420Z/pool/main/g/glibc/libc-dev-bin_2.36-9_amd64.deb"
+sha256 = "2b3b715f8887fe41fb1aa7437d380d1d78a87c6c06e9752ea0fd2b40a27a997f"
+
+[[package]]
+name = "libc6-dev"
+version = "2.36-9"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230411T030420Z/pool/main/g/glibc/libc6-dev_2.36-9_amd64.deb"
+sha256 = "fbb98612d020ffd47ed7b327dc2b33e3d29a784b171e952367924e5be3c3752f"
+
+[[package]]
+name = "libcc1-0"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libcc1-0_12.2.0-14_amd64.deb"
+sha256 = "1379ab846489b322bb45602d34ca8e2791e1d342fd53d49143f6355430934efd"
+
+[[package]]
+name = "libcrypt-dev"
+version = "1:4.4.33-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230107T030552Z/pool/main/libx/libxcrypt/libcrypt-dev_4.4.33-2_amd64.deb"
+sha256 = "81ccd29130f75a9e3adabc80e61921abff42f76761e1f792fa2d1bb69af7f52f"
+
+[[package]]
+name = "libctf-nobfd0"
+version = "2.40-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/libctf-nobfd0_2.40-2_amd64.deb"
+sha256 = "ef1dfcf22de41ea90ebd3d505447ccccd999e96b85aa777a1d7d981dc3b347aa"
+
+[[package]]
+name = "libctf0"
+version = "2.40-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/libctf0_2.40-2_amd64.deb"
+sha256 = "3fb7b6f326be3fae4a87a3d33b9269bd06c1e4346a24bd737f265067e3b7427f"
+
+[[package]]
+name = "libgcc-12-dev"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libgcc-12-dev_12.2.0-14_amd64.deb"
+sha256 = "6ffd3721915c49580fc9bcf1ef06deab4ad59e99c52c9f349d03954642b97655"
+
+[[package]]
+name = "libgomp1"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libgomp1_12.2.0-14_amd64.deb"
+sha256 = "1dbc499d2055cb128fa4ed678a7adbcced3d882b3509e26d5aa3742a4b9e5b2f"
+
+[[package]]
+name = "libgprofng0"
+version = "2.40-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/libgprofng0_2.40-2_amd64.deb"
+sha256 = "a3c4092d84f19d13caf90f3c96eec53db8819f0e3a5247434944d71ed75fa53d"
+
+[[package]]
+name = "libgssapi-krb5-2"
+version = "1.20.1-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230517T030521Z/pool/main/k/krb5/libgssapi-krb5-2_1.20.1-2_amd64.deb"
+sha256 = "52e7c4645098213967be55fa6db89f1cffb584d1d66550a0a29fe2a7333dfa1c"
+
+[[package]]
+name = "libisl23"
+version = "0.25-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20220717T214311Z/pool/main/i/isl/libisl23_0.25-1_amd64.deb"
+sha256 = "70d356876847a9a540b5bebd02b2141f9de292e7ce17a596cafdecb15c39ba21"
+
+[[package]]
+name = "libitm1"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libitm1_12.2.0-14_amd64.deb"
+sha256 = "a6b79588938ef738fe6f03582b3ca0ed4fbd4a152dbe9f960e51a0355479a117"
+
+[[package]]
+name = "libjansson4"
+version = "2.14-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20220414T030009Z/pool/main/j/jansson/libjansson4_2.14-2_amd64.deb"
+sha256 = "3fc9742f9f1a37bcb9931df6074b4d1483419ef832ad5349f47323e75fc27864"
+
+[[package]]
+name = "libk5crypto3"
+version = "1.20.1-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230517T030521Z/pool/main/k/krb5/libk5crypto3_1.20.1-2_amd64.deb"
+sha256 = "e1ce4cf7d925c25ec3d6be61205e9af889815ce6131db8ad925b3db38363da6b"
+
+[[package]]
+name = "libkeyutils1"
+version = "1.6.3-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20221220T035734Z/pool/main/k/keyutils/libkeyutils1_1.6.3-2_amd64.deb"
+sha256 = "cfac89e6a7a54ff3c6a4f843310e25efeddaa771baeae470bd98bd588c373563"
+
+[[package]]
+name = "libkrb5-3"
+version = "1.20.1-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230517T030521Z/pool/main/k/krb5/libkrb5-3_1.20.1-2_amd64.deb"
+sha256 = "27dd4ce7e9542ad88a6d3856bccfaf1d383bf9cf90d888cce762dd150cceb136"
+
+[[package]]
+name = "libkrb5support0"
+version = "1.20.1-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230517T030521Z/pool/main/k/krb5/libkrb5support0_1.20.1-2_amd64.deb"
+sha256 = "bd36a4f9b1a9b1d83cc93a109b817bc20f885b76b881168b16a15e8262f1f2c8"
+
+[[package]]
+name = "liblsan0"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/liblsan0_12.2.0-14_amd64.deb"
+sha256 = "c6a494d3605341a2c909e280f81fa015a4c8df2de8624c88a712a7f98a63f057"
+
+[[package]]
+name = "libmpc3"
+version = "1.3.1-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20221227T032939Z/pool/main/m/mpclib3/libmpc3_1.3.1-1_amd64.deb"
+sha256 = "d7f79544790e44f9b0c8cb9034a18c58d37f8702a15f32539050718679e52f80"
+
+[[package]]
+name = "libmpfr6"
+version = "4.2.0-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230114T205500Z/pool/main/m/mpfr4/libmpfr6_4.2.0-1_amd64.deb"
+sha256 = "37b7a2b4e78890b6a074777f27b96c84f58e81558ba08410c2b6c0ca4a4ad77b"
+
+[[package]]
+name = "libnsl-dev"
+version = "1.3.0-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20201010T205029Z/pool/main/libn/libnsl/libnsl-dev_1.3.0-2_amd64.deb"
+sha256 = "bb81a188c119cd7fdebae723cbc95887b6c549b2fe4fb7e268a9c8846444da99"
+
+[[package]]
+name = "libnsl2"
+version = "1.3.0-2"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20201010T205029Z/pool/main/libn/libnsl/libnsl2_1.3.0-2_amd64.deb"
+sha256 = "c0d83437fdb016cb289436f49f28a36be44b3e8f1f2498c7e3a095f709c0d6f8"
+
+[[package]]
+name = "libquadmath0"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libquadmath0_12.2.0-14_amd64.deb"
+sha256 = "4e21728bbb1f170f35a5d60fe26adadb48c436f1b5fd977454e632668074169c"
+
+[[package]]
+name = "libssl3"
+version = "3.0.9-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230531T025815Z/pool/main/o/openssl/libssl3_3.0.9-1_amd64.deb"
+sha256 = "45407e1164813c6473f4c1113d26d2b8d776ed607f88e29169b91b64f4035577"
+
+[[package]]
+name = "libtirpc-common"
+version = "1.3.3+ds-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20220812T092925Z/pool/main/libt/libtirpc/libtirpc-common_1.3.3+ds-1_all.deb"
+sha256 = "3e3ef129b4bf61513144236e15e1b4ec57fa5ae3dc8a72137abdbefb7a63af85"
+
+[[package]]
+name = "libtirpc-dev"
+version = "1.3.3+ds-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20220812T092925Z/pool/main/libt/libtirpc/libtirpc-dev_1.3.3+ds-1_amd64.deb"
+sha256 = "03326473eed54ffa27efae19aa5d6aeb402930968f869f318445513093691d55"
+
+[[package]]
+name = "libtirpc3"
+version = "1.3.3+ds-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20220812T092925Z/pool/main/libt/libtirpc/libtirpc3_1.3.3+ds-1_amd64.deb"
+sha256 = "2a46d5a5e9486da11ffeff5740931740d6deae4f92cd6098df060dc5dff1e1c7"
+
+[[package]]
+name = "libtsan2"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libtsan2_12.2.0-14_amd64.deb"
+sha256 = "d8e04be2cd7f8299668020b1c2a13ce07a1b79e73c901338a6fabd77ccabf004"
+
+[[package]]
+name = "libubsan1"
+version = "12.2.0-14"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20230109T091852Z/pool/main/g/gcc-12/libubsan1_12.2.0-14_amd64.deb"
+sha256 = "e46fbb519b4342c114b2fa19bcdb736e294eadc769fae75d6bc2e94a4db67f15"
+
+[[package]]
+name = "linux-libc-dev"
+version = "6.1.37-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian-security/20230705T195545Z/pool/updates/main/l/linux/linux-libc-dev_6.1.37-1_amd64.deb"
+sha256 = "1ce6d7c4e85c285a33348a9fe9913f6091713e56a1b786a81b4b7fdfd97e1e09"
+
+[[package]]
+name = "rpcsvc-proto"
+version = "1.4.3-1"
+system = "debian"
+url = "https://snapshot.debian.org/archive/debian/20221203T150621Z/pool/main/r/rpcsvc-proto/rpcsvc-proto_1.4.3-1_amd64.deb"
+sha256 = "32ac0692694f8a34cc90c895f4fc739680fb2ef0e2d4870a68833682bf1c81a3"
