@@ -65,10 +65,10 @@ async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
 pub fn verify_pin_metadata(pkg: &[u8], pin: &PackageLock) -> Result<()> {
     let pkg = match pin.system.as_str() {
         "archlinux" => {
-            pkgs::archlinux::parse(&pkg[..]).context("Failed to parse data as archlinux package")?
+            pkgs::archlinux::parse(pkg).context("Failed to parse data as archlinux package")?
         }
         "debian" => {
-            pkgs::debian::parse(&pkg[..]).context("Failed to parse data as debian package")?
+            pkgs::debian::parse(pkg).context("Failed to parse data as debian package")?
         }
         system => bail!("Unknown package system: {system:?}"),
     };
@@ -151,7 +151,7 @@ pub async fn setup_extra_folder(
 
         // verify pkg content matches pin metadata
         let pkg = fs::read(&dest).await?;
-        verify_pin_metadata(&pkg, &package)?;
+        verify_pin_metadata(&pkg, package)?;
 
         install
             .entry(package.system.clone())
