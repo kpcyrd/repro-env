@@ -8,14 +8,15 @@ pub enum Compression {
     None,
 }
 
-pub fn detect_compression(bytes: &[u8]) -> Compression {
+pub fn detect_compression(bytes: &[u8]) -> Result<Compression> {
     let mime = tree_magic_mini::from_u8(bytes);
     debug!("Detected mimetype for possibly compressed data: {:?}", mime);
 
     match mime {
-        "application/x-xz" => Compression::Xz,
-        "application/zstd" => Compression::Zstd,
-        _ => Compression::None,
+        "application/x-xz" => Ok(Compression::Xz),
+        "application/zstd" => Ok(Compression::Zstd),
+        "application/x-tar" => Ok(Compression::None),
+        mime => bail!("Unsupported mimetype for pkg: {mime:?}"),
     }
 }
 
@@ -54,7 +55,7 @@ pub fn parse_tar<R: Read>(reader: R) -> Result<Pkg> {
 }
 
 pub fn parse(reader: &[u8]) -> Result<Pkg> {
-    match detect_compression(reader) {
+    match detect_compression(reader)? {
         Compression::Xz => {
             let mut buf = Vec::new();
             lzma_rs::xz_decompress(&mut &reader[..], &mut buf)?;
@@ -128,7 +129,8 @@ checkdepend = tcl
         let mut buf = Vec::new();
         lzma_rs::xz_compress(&mut &archive[..], &mut buf)?;
 
-        let pkg = parse(&buf)?;
+        let pkg = parse(&buf)
+            .context("Failed to parse package")?;
         assert_eq!(
             pkg,
             Pkg {
