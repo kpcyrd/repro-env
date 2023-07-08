@@ -220,6 +220,7 @@ pub async fn resolve(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use flate2::write::GzEncoder;
 
     #[test]
     fn parse_pkg_entry() -> Result<()> {
@@ -285,6 +286,17 @@ gtest
 ninja
 "#;
         let pkg = Package::parse(buf)?;
+        assert_eq!(pkg.name()?, "zstd");
+        assert_eq!(
+            pkg.archive_url()?,
+            "https://archive.archlinux.org/packages/z/zstd/zstd-1.5.5-1-x86_64.pkg.tar.zst"
+        );
+        assert_eq!(
+            pkg.sha256()?,
+            "1891970afabc725e72c6a9bb2c127d906c1d3cc70309336fbe87adbd460c05b8"
+        );
+        assert_eq!(pkg.signature()?, "iQEzBAABCgAdFiEE5JnHn1PJalTlcv7hwGCGM3xQdz4FAmQ79ZMACgkQwGCGM3xQdz4V+Qf/Yz7Y+3WwSDKtspwcaEr3j95n1nN5+SAThl/OHe94WwmInDWV09GwM+Lrw6Y1RFDK1PI1ZLON3hOo/81udW0uCHJ4n0bnU/2x3B4UW82dcBqFBjiEqNEF1x6KcQGf9PE9seZndsiAxVzrbEH9u48RIHx0SuwWnzlryCoHPYTgYsPrpkH0IzLUerP2Lc8rjUR2eAKn6zoomb3mR74dPNMn2yx9gS0l+79EshQR8kWtOVvTv7xgRriWeJMBNoTTvDfiDq5B8395vPaBmSfrU0O3tvVF3eDAGtpxIb8hqfhtRqy3XqTcRrYaoj44KtJraGCbq5DrsImEdx5byS7qBhoheQ==");
+        assert!(pkg.single_value("%DEPENDS%").is_err());
 
         let mut expected = Package::default();
         expected.add_values("%FILENAME%", &["zstd-1.5.5-1-x86_64.pkg.tar.zst"]);
@@ -315,6 +327,179 @@ ninja
         expected.add_values("%MAKEDEPENDS%", &["cmake", "gtest", "ninja"]);
 
         assert_eq!(pkg, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn test_database_cache_import() -> Result<()> {
+        let mut db = DatabaseCache::default();
+        assert_eq!(db.has_repo("core"), false);
+
+        let data = {
+            let mut tar =
+                tar::Builder::new(GzEncoder::new(Vec::new(), flate2::Compression::default()));
+
+            let data = br#"%FILENAME%
+rust-1:1.70.0-1-x86_64.pkg.tar.zst
+
+%NAME%
+rust
+
+%BASE%
+rust
+
+%VERSION%
+1:1.70.0-1
+
+%DESC%
+Systems programming language focused on safety, speed and concurrency
+
+%CSIZE%
+90509601
+
+%ISIZE%
+483950051
+
+%MD5SUM%
+a8498a6e40c64d7b08d493133941e918
+
+%SHA256SUM%
+8d018b14d2226d76ee46ecd6e28f51ddfa7bfd930463e517eabd5d86f8a17851
+
+%PGPSIG%
+iIsEABYIADMWIQQGaHodnU+rCLUP2Ss7lKgOUKR3xwUCZHkDRRUcaGVmdGlnQGFyY2hsaW51eC5vcmcACgkQO5SoDlCkd8eCrQEA8y2X/SVbHhchDdfBUp+KBOFoqN63haT6TNq7MIFDvXoA/AwzQe1rwL0RfvxMh130A2wzrid77YXTOjk36QHPmGIL
+
+%URL%
+https://www.rust-lang.org/
+
+%LICENSE%
+Apache
+MIT
+
+%ARCH%
+x86_64
+
+%BUILDDATE%
+1685646983
+
+%PACKAGER%
+Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+
+%REPLACES%
+cargo
+cargo-tree
+rust-docs<1:1.56.1-3
+rustfmt
+
+%CONFLICTS%
+cargo
+rust-docs<1:1.56.1-3
+rustfmt
+
+%PROVIDES%
+cargo
+rustfmt
+
+%DEPENDS%
+curl
+gcc
+gcc-libs
+libssh2
+llvm-libs
+
+%OPTDEPENDS%
+gdb: rust-gdb script
+lldb: rust-lldb script
+
+%MAKEDEPENDS%
+cmake
+lib32-gcc-libs
+libffi
+lld
+llvm
+musl
+ninja
+perl
+python
+rust
+wasi-libc
+
+%CHECKDEPENDS%
+gdb
+procps-ng
+
+"#;
+
+            let mut header = tar::Header::new_gnu();
+            header.set_path("rust-1:1.70.0-1/desc")?;
+            header.set_size(data.len() as u64);
+            header.set_cksum();
+            tar.append(&header, &data[..])?;
+
+            tar.into_inner()?.finish()?
+        };
+        db.import_repo("core", &data)?;
+        assert_eq!(db.has_repo("core"), true);
+
+        let pkg = db.get_package("rust")?;
+        let mut expected = Package::default();
+        expected.add_values("%FILENAME%", &["rust-1:1.70.0-1-x86_64.pkg.tar.zst"]);
+        expected.add_values("%NAME%", &["rust"]);
+        expected.add_values("%BASE%", &["rust"]);
+        expected.add_values("%VERSION%", &["1:1.70.0-1"]);
+        expected.add_values(
+            "%DESC%",
+            &["Systems programming language focused on safety, speed and concurrency"],
+        );
+        expected.add_values("%CSIZE%", &["90509601"]);
+        expected.add_values("%ISIZE%", &["483950051"]);
+        expected.add_values("%MD5SUM%", &["a8498a6e40c64d7b08d493133941e918"]);
+        expected.add_values(
+            "%SHA256SUM%",
+            &["8d018b14d2226d76ee46ecd6e28f51ddfa7bfd930463e517eabd5d86f8a17851"],
+        );
+        expected.add_values("%PGPSIG%", &["iIsEABYIADMWIQQGaHodnU+rCLUP2Ss7lKgOUKR3xwUCZHkDRRUcaGVmdGlnQGFyY2hsaW51eC5vcmcACgkQO5SoDlCkd8eCrQEA8y2X/SVbHhchDdfBUp+KBOFoqN63haT6TNq7MIFDvXoA/AwzQe1rwL0RfvxMh130A2wzrid77YXTOjk36QHPmGIL"]);
+        expected.add_values("%URL%", &["https://www.rust-lang.org/"]);
+        expected.add_values("%LICENSE%", &["Apache", "MIT"]);
+        expected.add_values("%ARCH%", &["x86_64"]);
+        expected.add_values("%BUILDDATE%", &["1685646983"]);
+        expected.add_values(
+            "%PACKAGER%",
+            &["Jan Alexander Steffens (heftig) <heftig@archlinux.org>"],
+        );
+        expected.add_values(
+            "%REPLACES%",
+            &["cargo", "cargo-tree", "rust-docs<1:1.56.1-3", "rustfmt"],
+        );
+        expected.add_values("%CONFLICTS%", &["cargo", "rust-docs<1:1.56.1-3", "rustfmt"]);
+        expected.add_values("%PROVIDES%", &["cargo", "rustfmt"]);
+        expected.add_values(
+            "%DEPENDS%",
+            &["curl", "gcc", "gcc-libs", "libssh2", "llvm-libs"],
+        );
+        expected.add_values(
+            "%OPTDEPENDS%",
+            &["gdb: rust-gdb script", "lldb: rust-lldb script"],
+        );
+        expected.add_values(
+            "%MAKEDEPENDS%",
+            &[
+                "cmake",
+                "lib32-gcc-libs",
+                "libffi",
+                "lld",
+                "llvm",
+                "musl",
+                "ninja",
+                "perl",
+                "python",
+                "rust",
+                "wasi-libc",
+            ],
+        );
+        expected.add_values("%CHECKDEPENDS%", &["gdb", "procps-ng"]);
+        assert_eq!(pkg, &expected);
+
         Ok(())
     }
 }

@@ -39,3 +39,29 @@ impl PkgsCacheDir {
         Ok(path)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_sha256_path() {
+        let dir = PkgsCacheDir {
+            path: PathBuf::from("/cache"),
+        };
+        assert!(dir.sha256_path("").is_err());
+        assert!(dir.sha256_path("ffff").is_err());
+        assert!(dir
+            .sha256_path("////////////////////////////////////////////////////////////////")
+            .is_err());
+
+        let path = dir
+            .sha256_path("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+            .unwrap();
+        assert_eq!(
+            path,
+            Path::new("/cache/ff/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        );
+    }
+}

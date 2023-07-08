@@ -56,13 +56,20 @@ pub struct Completions {
 }
 
 impl Completions {
-    pub fn generate(&self) -> Result<()> {
-        clap_complete::generate(
-            self.shell,
-            &mut Args::command(),
-            "repro-env",
-            &mut io::stdout(),
-        );
+    pub fn generate<W: io::Write>(&self, mut w: W) -> Result<()> {
+        clap_complete::generate(self.shell, &mut Args::command(), "repro-env", &mut w);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_zsh_completions() {
+        Completions { shell: Shell::Zsh }
+            .generate(io::sink())
+            .unwrap();
     }
 }

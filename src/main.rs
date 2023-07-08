@@ -6,6 +6,7 @@ use repro_env::errors::*;
 use repro_env::manifest::Manifest;
 use repro_env::resolver;
 use std::env;
+use std::io;
 use std::path::Path;
 use tokio::fs;
 
@@ -48,6 +49,6 @@ async fn main() -> Result<()> {
 
             Ok(())
         }
-        SubCommand::Completions(completions) => completions.generate(),
+        SubCommand::Completions(completions) => completions.generate(io::stdout()),
     }
 }
