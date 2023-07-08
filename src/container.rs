@@ -1,6 +1,4 @@
 use crate::errors::*;
-use nix::sched::CloneFlags;
-use nix::sys::wait::{WaitPidFlag, WaitStatus};
 use serde::{Deserialize, Serialize};
 use std::ffi::OsStr;
 use std::fmt;
@@ -225,7 +223,11 @@ impl Container {
     }
 }
 
+#[cfg(target_os = "linux")]
 pub fn test_userns_clone() -> Result<()> {
+    use nix::sched::CloneFlags;
+    use nix::sys::wait::{WaitPidFlag, WaitStatus};
+
     let cb = Box::new(|| 0);
     let stack = &mut [0; 1024];
     let flags = CloneFlags::CLONE_NEWNS | CloneFlags::CLONE_NEWUSER;
@@ -242,7 +244,16 @@ pub fn test_userns_clone() -> Result<()> {
     Ok(())
 }
 
+#[cfg(target_os = "linux")]
 pub async fn test_for_unprivileged_userns_clone() -> Result<()> {
+    if std::env::var("REPRO_ENV_SKIP_CLONE_CHECK")
+        .map(|x| x != "0")
+        .unwrap_or(false)
+    {
+        debug!("Skipping test if user namespaces can be created");
+        return Ok(());
+    }
+
     debug!("Testing if user namespaces can be created");
     if let Err(err) = test_userns_clone() {
         match fs::read("/proc/sys/kernel/unprivileged_userns_clone").await {
@@ -262,6 +273,11 @@ pub async fn test_for_unprivileged_userns_clone() -> Result<()> {
         debug!("Successfully tested for user namespaces");
         Ok(())
     }
+}
+
+#[cfg(not(target_os = "linux"))]
+pub async fn test_for_unprivileged_userns_clone() -> Result<()> {
+    Ok(())
 }
 
 #[cfg(test)]
