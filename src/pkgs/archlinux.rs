@@ -129,8 +129,7 @@ checkdepend = tcl
         let mut buf = Vec::new();
         lzma_rs::xz_compress(&mut &archive[..], &mut buf)?;
 
-        let pkg = parse(&buf)
-            .context("Failed to parse package")?;
+        let pkg = parse(&buf).context("Failed to parse package")?;
         assert_eq!(
             pkg,
             Pkg {
