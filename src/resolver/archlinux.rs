@@ -134,7 +134,14 @@ pub async fn resolve_dependencies(
         .await?;
 
     info!("Resolving dependencies...");
-    let mut cmd = vec!["pacman", "-Sup", "--print-format", "%r %n %v", "--"];
+    let mut cmd = vec![
+        "pacman",
+        "-Sup",
+        "--noconfirm",
+        "--print-format",
+        "%r %n %v",
+        "--",
+    ];
     for dep in &manifest.dependencies {
         cmd.push(dep.as_str());
     }
