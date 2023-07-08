@@ -1,10 +1,13 @@
 use crate::errors::*;
+use nix::sched::CloneFlags;
+use nix::sys::wait::{WaitPidFlag, WaitStatus};
 use serde::{Deserialize, Serialize};
 use std::ffi::OsStr;
 use std::fmt;
 use std::io::Read;
 use std::process::Stdio;
 use std::str::FromStr;
+use tokio::fs;
 use tokio::process::Command;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -218,6 +221,45 @@ impl Container {
         podman(&["container", "kill", &self.id], true)
             .await
             .context("Failed to remove container")?;
+        Ok(())
+    }
+}
+
+pub fn test_userns_clone() -> Result<()> {
+    let cb = Box::new(|| 0);
+    let stack = &mut [0; 1024];
+    let flags = CloneFlags::CLONE_NEWNS | CloneFlags::CLONE_NEWUSER;
+
+    let pid =
+        nix::sched::clone(cb, stack, flags, None).context("Failed to create user namespace")?;
+    let status = nix::sys::wait::waitpid(pid, Some(WaitPidFlag::__WCLONE))
+        .context("Failed to reap child")?;
+
+    if status != WaitStatus::Exited(pid, 0) {
+        bail!("Unexpected wait result: {:?}", status);
+    }
+
+    Ok(())
+}
+
+pub async fn test_for_unprivileged_userns_clone() -> Result<()> {
+    debug!("Testing if user namespaces can be created");
+    if let Err(err) = test_userns_clone() {
+        match fs::read("/proc/sys/kernel/unprivileged_userns_clone").await {
+            Ok(buf) => {
+                if buf == b"0\n" {
+                    warn!("User namespaces are not enabled in /proc/sys/kernel/unprivileged_userns_clone")
+                }
+            }
+            Err(err) => warn!(
+                "Failed to check if unprivileged_userns_clone are allowed: {:#}",
+                err
+            ),
+        }
+
+        Err(err)
+    } else {
+        debug!("Successfully tested for user namespaces");
         Ok(())
     }
 }

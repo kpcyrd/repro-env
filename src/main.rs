@@ -3,12 +3,9 @@ use env_logger::Env;
 use repro_env::args::{Args, SubCommand};
 use repro_env::build;
 use repro_env::errors::*;
-use repro_env::manifest::Manifest;
-use repro_env::resolver;
+use repro_env::update;
 use std::env;
 use std::io;
-use std::path::Path;
-use tokio::fs;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -29,26 +26,7 @@ async fn main() -> Result<()> {
 
     match args.subcommand {
         SubCommand::Build(build) => build::build(&build).await,
-        SubCommand::Update(update) => {
-            let manifest_path = Path::new("repro-env.toml");
-            let lockfile_path = Path::new("repro-env.lock");
-
-            let buf = fs::read_to_string(manifest_path).await.with_context(|| {
-                anyhow!("Failed to read dependency manifest: {manifest_path:?}")
-            })?;
-
-            let manifest = Manifest::deserialize(&buf)?;
-            debug!("Loaded manifest from file: {manifest:?}");
-
-            let lockfile = resolver::resolve(&update, &manifest).await?;
-            trace!("Resolved manifest into lockfile: {lockfile:?}");
-
-            debug!("Updating dependency lockfile: {lockfile_path:?}");
-            let buf = lockfile.serialize()?;
-            fs::write(lockfile_path, buf).await?;
-
-            Ok(())
-        }
+        SubCommand::Update(update) => update::update(&update).await,
         SubCommand::Completions(completions) => completions.generate(io::stdout()),
     }
 }

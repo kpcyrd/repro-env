@@ -1034,6 +1034,7 @@ dependencies = [
  "lz4_flex",
  "lzma-rs",
  "memchr",
+ "nix",
  "reqwest",
  "ruzstd",
  "serde",

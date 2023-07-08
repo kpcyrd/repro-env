@@ -8,3 +8,4 @@ pub mod manifest;
 pub mod paths;
 pub mod pkgs;
 pub mod resolver;
+pub mod update;

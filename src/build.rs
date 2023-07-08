@@ -220,6 +220,8 @@ pub async fn run_build(
 }
 
 pub async fn build(build: &args::Build) -> Result<()> {
+    container::test_for_unprivileged_userns_clone().await?;
+
     let path = build.file.as_deref().unwrap_or(Path::new("repro-env.lock"));
 
     let buf = fs::read_to_string(path)
