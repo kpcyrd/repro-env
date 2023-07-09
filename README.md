@@ -53,6 +53,16 @@ The final executable is available at this location:
 
 [![](https://repology.org/badge/vertical-allrepos/repro-env.svg)](https://repology.org/project/repro-env/versions)
 
+With github actions:
+
+```yaml
+- name: Install repro-env
+  run: |
+    wget 'https://github.com/kpcyrd/repro-env/releases/download/v0.2.0/repro-env'
+    echo 'b78727a7b2f635504ab780bfa5dd7e7bbcfb9255607eaf815762e0893aad5663  repro-env' | sha256sum -c -
+    sudo install -m755 repro-env -t /usr/bin
+```
+
 ## Packages: Arch Linux
 
 Arch Linux hosts a comprehensive collection of recent compilers at https://archive.archlinux.org. You can create a `[packages]` section in your **repro-env.toml** with `system = "archlinux"` to install additional packages with pacman.

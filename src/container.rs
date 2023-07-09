@@ -5,7 +5,6 @@ use std::fmt;
 use std::io::Read;
 use std::process::Stdio;
 use std::str::FromStr;
-use tokio::fs;
 use tokio::process::Command;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -256,7 +255,7 @@ pub async fn test_for_unprivileged_userns_clone() -> Result<()> {
 
     debug!("Testing if user namespaces can be created");
     if let Err(err) = test_userns_clone() {
-        match fs::read("/proc/sys/kernel/unprivileged_userns_clone").await {
+        match tokio::fs::read("/proc/sys/kernel/unprivileged_userns_clone").await {
             Ok(buf) => {
                 if buf == b"0\n" {
                     warn!("User namespaces are not enabled in /proc/sys/kernel/unprivileged_userns_clone")
