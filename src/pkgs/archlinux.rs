@@ -1,5 +1,6 @@
 use crate::errors::*;
 use crate::pkgs::Pkg;
+use peekread::{BufPeekReader, PeekRead};
 use std::io::{BufRead, BufReader, Read};
 
 pub enum Compression {
@@ -8,15 +9,19 @@ pub enum Compression {
     None,
 }
 
-pub fn detect_compression(bytes: &[u8]) -> Result<Compression> {
-    let mime = tree_magic_mini::from_u8(bytes);
-    debug!("Detected mimetype for possibly compressed data: {:?}", mime);
+pub fn detect_compression<R: Read>(mut reader: R) -> Result<Compression> {
+    let mut buf = [0u8; 6];
 
-    match mime {
-        "application/x-xz" => Ok(Compression::Xz),
-        "application/zstd" => Ok(Compression::Zstd),
-        "application/x-tar" => Ok(Compression::None),
-        mime => bail!("Unsupported mimetype for pkg: {mime:?}"),
+    reader
+        .read_exact(&mut buf)
+        .context("Failed to read magic bytes from archive")?;
+
+    if buf.starts_with(&[0x28, 0xB5, 0x2F, 0xFD]) {
+        Ok(Compression::Zstd)
+    } else if buf.starts_with(&[0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00]) {
+        Ok(Compression::Xz)
+    } else {
+        Ok(Compression::None)
     }
 }
 
@@ -54,11 +59,12 @@ pub fn parse_tar<R: Read>(reader: R) -> Result<Pkg> {
     bail!("Failed to find .PKGINFO in package file")
 }
 
-pub fn parse(reader: &[u8]) -> Result<Pkg> {
-    match detect_compression(reader)? {
+pub fn parse<R: Read>(reader: R) -> Result<Pkg> {
+    let mut reader = BufPeekReader::new(reader);
+    match detect_compression(reader.peek())? {
         Compression::Xz => {
             let mut buf = Vec::new();
-            lzma_rs::xz_decompress(&mut &reader[..], &mut buf)?;
+            lzma_rs::xz_decompress(&mut reader, &mut buf)?;
             parse_tar(&buf[..])
         }
         Compression::Zstd => {
@@ -129,7 +135,7 @@ checkdepend = tcl
         let mut buf = Vec::new();
         lzma_rs::xz_compress(&mut &archive[..], &mut buf)?;
 
-        let pkg = parse(&buf).context("Failed to parse package")?;
+        let pkg = parse(&buf[..]).context("Failed to parse package")?;
         assert_eq!(
             pkg,
             Pkg {

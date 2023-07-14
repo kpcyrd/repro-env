@@ -149,7 +149,8 @@ pub async fn setup_extra_folder(
 
         // verify pkg content matches pin metadata
         let pkg = fs::read(&dest).await?;
-        verify_pin_metadata(&pkg, package)?;
+        verify_pin_metadata(&pkg, package)
+            .with_context(|| anyhow!("Failed to verify metadata for {filename:?}"))?;
 
         install
             .entry(package.system.clone())

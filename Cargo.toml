@@ -28,6 +28,7 @@ lz4_flex = "0.11.1"
 lzma-rs = "0.3.0"
 memchr = "2.5.0"
 nix = { version = "0.26", default-features = false, features = ["sched"] }
+peekread = "0.1.1"
 reqwest = { version = "0.11.18", features = ["rustls-tls-native-roots", "tokio-socks"], default-features = false }
 ruzstd = "0.4.0"
 serde = { version = "1", features = ["derive"] }
@@ -38,5 +39,4 @@ tar = "0.4.38"
 tempfile = "3.6.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs", "process", "signal"] }
 toml = "0.7.5"
-tree_magic_mini = "3.0.3"
 urlencoding = "2.1.2"
