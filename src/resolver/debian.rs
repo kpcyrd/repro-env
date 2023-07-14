@@ -11,7 +11,6 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::io::prelude::*;
 use tokio::fs;
-use tokio::signal;
 
 #[derive(Debug, Deserialize)]
 pub struct JsonSnapshotInfo {
@@ -156,7 +155,6 @@ pub async fn resolve_dependencies(
     container: &Container,
     manifest: &PackagesManifest,
     dependencies: &mut Vec<PackageLock>,
-    keep: bool,
 ) -> Result<()> {
     info!("Update package datatabase...");
     container
@@ -252,12 +250,7 @@ pub async fn resolve_dependencies(
         });
     }
 
-    if keep {
-        info!("Keeping container around until ^C...");
-        futures::future::pending().await
-    } else {
-        Ok(())
-    }
+    Ok(())
 }
 
 pub async fn resolve(
@@ -266,28 +259,20 @@ pub async fn resolve(
     container: &ContainerLock,
     dependencies: &mut Vec<PackageLock>,
 ) -> Result<()> {
-    debug!("Creating container...");
-    let init = &["/__".to_string(), "-P".to_string()];
     let container = Container::create(
         &container.image,
         container::Config {
-            init,
             mounts: &[],
             expose_fuse: false,
         },
     )
     .await?;
-    let container_id = container.id.clone();
-    let result = tokio::select! {
-        result = resolve_dependencies(&container, manifest, dependencies, update.keep) => result,
-        _ = signal::ctrl_c() => Err(anyhow!("Ctrl-c received")),
-    };
-    debug!("Removing container...");
-    if let Err(err) = container.kill().await {
-        warn!("Failed to kill container {:?}: {:#}", container_id, err);
-    }
-    debug!("Container cleanup complete");
-    result
+    container
+        .run(
+            resolve_dependencies(&container, manifest, dependencies),
+            update.keep,
+        )
+        .await
 }
 
 #[cfg(test)]

@@ -12,7 +12,6 @@ use std::env;
 use std::path::Path;
 use tempfile::TempDir;
 use tokio::fs;
-use tokio::signal;
 
 async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
     let client = http::Client::new()?;
@@ -212,12 +211,7 @@ pub async fn run_build(
         )
         .await?;
 
-    if build.keep {
-        info!("Keeping container around until ^C...");
-        futures::future::pending().await
-    } else {
-        Ok(())
-    }
+    Ok(())
 }
 
 pub async fn build(build: &args::Build) -> Result<()> {
@@ -260,26 +254,15 @@ pub async fn build(build: &args::Build) -> Result<()> {
         None
     };
 
-    debug!("Creating container...");
-    let init = &["/__".to_string(), "-P".to_string()];
     let container = Container::create(
         &lockfile.container.image,
         container::Config {
-            init,
             mounts: &mounts,
             expose_fuse: false,
         },
     )
     .await?;
-    let container_id = container.id.clone();
-    let result = tokio::select! {
-        result = run_build(&container, build, extra.as_ref()) => result,
-        _ = signal::ctrl_c() => Err(anyhow!("Ctrl-c received")),
-    };
-    debug!("Removing container...");
-    if let Err(err) = container.kill().await {
-        warn!("Failed to kill container {:?}: {:#}", container_id, err);
-    }
-    debug!("Container cleanup complete");
-    result
+    container
+        .run(run_build(&container, build, extra.as_ref()), build.keep)
+        .await
 }

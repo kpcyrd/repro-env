@@ -2,10 +2,12 @@ use crate::errors::*;
 use serde::{Deserialize, Serialize};
 use std::ffi::OsStr;
 use std::fmt;
+use std::future::{self, Future};
 use std::io::Read;
 use std::process::Stdio;
 use std::str::FromStr;
 use tokio::process::Command;
+use tokio::signal;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ImageRef {
@@ -99,7 +101,6 @@ pub async fn inspect(image: &str) -> Result<Vec<Image>> {
 
 #[derive(Debug)]
 pub struct Config<'a> {
-    pub init: &'a [String],
     pub mounts: &'a [(String, String)],
     pub expose_fuse: bool,
 }
@@ -118,12 +119,6 @@ pub struct Container {
 
 impl Container {
     pub async fn create(image: &str, config: Config<'_>) -> Result<Container> {
-        let bin = config
-            .init
-            .first()
-            .context("Command for container can't be empty")?;
-        let cmd_args = &config.init[1..];
-        let entrypoint = format!("--entrypoint={bin}");
         let mut podman_args = vec![
             "container".to_string(),
             "run".to_string(),
@@ -131,6 +126,7 @@ impl Container {
             "--rm".to_string(),
             "--network=host".to_string(),
             "-v=/usr/bin/catatonit:/__:ro".to_string(),
+            "--entrypoint=/__".to_string(),
         ];
 
         for (src, dest) in config.mounts {
@@ -142,9 +138,9 @@ impl Container {
             podman_args.push("--device=/dev/fuse".to_string());
         }
 
-        podman_args.extend([entrypoint, "--".to_string(), image.to_string()]);
-        podman_args.extend(cmd_args.iter().map(|s| s.to_string()));
+        podman_args.extend(["--".to_string(), image.to_string(), "-P".to_string()]);
 
+        debug!("Creating container...");
         let mut out = podman(&podman_args, true).await?;
         if let Some(idx) = memchr::memchr(b'\n', &out) {
             out.truncate(idx);
@@ -214,11 +210,33 @@ impl Container {
         Ok(buf)
     }
 
-    pub async fn kill(self) -> Result<()> {
+    pub async fn kill(&self) -> Result<()> {
         podman(&["container", "kill", &self.id], true)
             .await
             .context("Failed to remove container")?;
         Ok(())
+    }
+
+    pub async fn run<F: Future<Output = Result<()>>>(&self, fut: F, keep: bool) -> Result<()> {
+        let fut = async {
+            fut.await?;
+            if keep {
+                info!("Keeping container around until ^C...");
+                future::pending().await
+            } else {
+                Ok(())
+            }
+        };
+        let result = tokio::select! {
+            result = fut => result,
+            _ = signal::ctrl_c() => Err(anyhow!("Ctrl-c received")),
+        };
+        debug!("Removing container...");
+        if let Err(err) = self.kill().await {
+            warn!("Failed to kill container {:?}: {:#}", self.id, err);
+        }
+        debug!("Container cleanup complete");
+        result
     }
 }
 
