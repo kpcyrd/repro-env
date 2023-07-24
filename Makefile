@@ -7,4 +7,9 @@ build2:
 	RUSTFLAGS="-C strip=symbols" \
 	cargo build --target x86_64-unknown-linux-musl --release
 
-.PHONY: build build2
+docs: docs/repro-env.1
+
+docs/%: docs/%.scd
+	scdoc < $^ > $@
+
+.PHONY: build build2 docs
