@@ -1,7 +1,7 @@
 [package]
 name = "repro-env"
 version = "0.3.0"
-description = "Dependency lockfiles for a reproducible build environment 📦🔒"
+description = "Dependency lockfiles for reproducible build environments 📦🔒"
 authors = ["kpcyrd <git@rxv.cc>"]
 license = "GPL-3.0-or-later"
 repository = "https://github.com/kpcyrd/repro-env"
