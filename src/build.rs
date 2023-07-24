@@ -12,6 +12,7 @@ use std::env;
 use std::path::Path;
 use tempfile::TempDir;
 use tokio::fs;
+use tokio::io::{AsyncSeekExt, AsyncWriteExt};
 
 async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
     let client = http::Client::new()?;
@@ -26,35 +27,76 @@ async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
                 package.name, package.version
             );
         } else {
-            debug!(
-                "Downloading package into cache: {:?} {:?}",
-                package.name, package.version
-            );
-            // TODO: do not load into memory
-            let buf = client.fetch(&package.url).await?;
-
-            // TODO: calculate hash during download
-            let mut hasher = Sha256::new();
-            hasher.update(&buf);
-            let result = hex::encode(hasher.finalize());
-
-            if package.sha256 != result {
-                bail!(
-                    "Mismatch of sha256, expected={:?}, downloaded={:?}",
-                    package.sha256,
-                    result
-                );
-            }
-
             let parent = path
                 .parent()
                 .context("Failed to determine parent directory")?;
-            fs::create_dir_all(parent)
-                .await
-                .context("Failed to create parent directories")?;
-            fs::write(path, buf)
-                .await
-                .context("Failed to write downloaded package")?;
+            fs::create_dir_all(parent).await.with_context(|| {
+                anyhow!("Failed to create parent directories for file: {path:?}")
+            })?;
+
+            let mut dl_path = path.clone();
+            dl_path.as_mut_os_string().push(".tmp");
+
+            let file = fs::OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(&dl_path)
+                .await?;
+
+            let mut lock = fd_lock::RwLock::new(file);
+            debug!("Trying to acquire write lock for file: {path:?}");
+            let mut lock = lock
+                .write()
+                .with_context(|| anyhow!("Failed to acquire lock for {dl_path:?}"))?;
+
+            // check if file became available in meantime
+            if path.exists() {
+                debug!("File became available in the meantime, nothing to do");
+            } else {
+                debug!(
+                    "Downloading package into cache: {:?} {:?}",
+                    package.name, package.version
+                );
+                lock.set_len(0).await.context("Failed to truncate file")?;
+                lock.rewind()
+                    .await
+                    .context("Failed to rewind file to beginning")?;
+
+                let mut response = client.request(&package.url).await.with_context(|| {
+                    anyhow!("Failed to download package from url: {:?}", package.url)
+                })?;
+
+                let mut hasher = Sha256::new();
+                while let Some(chunk) = response
+                    .chunk()
+                    .await
+                    .context("Failed to read from download stream")?
+                {
+                    lock.write_all(&chunk)
+                        .await
+                        .context("Failed to write to downloaded data to disk")?;
+                    hasher.update(&chunk);
+                }
+                let result = hex::encode(hasher.finalize());
+
+                if package.sha256 != result {
+                    lock.set_len(0)
+                        .await
+                        .context("Mismatch of sha256, failed to truncate file")?;
+                    bail!(
+                        "Mismatch of sha256, expected={:?}, downloaded={:?}",
+                        package.sha256,
+                        result
+                    );
+                }
+
+                lock.sync_all()
+                    .await
+                    .context("Failed to sync downloaded data to disk")?;
+                fs::rename(&dl_path, &path)
+                    .await
+                    .with_context(|| anyhow!("Failed to rename {dl_path:?} to {path:?}"))?;
+            }
         }
     }
 
