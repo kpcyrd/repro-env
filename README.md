@@ -49,7 +49,7 @@ The final executable is available at this location:
 
 ## Download
 
-- [repro-env x86_64 statically linked](https://github.com/kpcyrd/repro-env/releases/download/v0.3.0/repro-env) (sha256: `3e5777d952a47d5562d309fd6cb861c0aa4a6a5e45a8aaefa073e702834e9e6d`)
+- [repro-env x86_64 statically linked](https://github.com/kpcyrd/repro-env/releases/download/v0.3.1/repro-env) (sha256: `587de7128815795ac34a2d39b0c609db0ce7effa1b024911a26064b7f43f5d2c`)
 
 [![](https://repology.org/badge/vertical-allrepos/repro-env.svg)](https://repology.org/project/repro-env/versions)
 
@@ -58,8 +58,8 @@ With github actions:
 ```yaml
 - name: Install repro-env
   run: |
-    wget 'https://github.com/kpcyrd/repro-env/releases/download/v0.3.0/repro-env'
-    echo '3e5777d952a47d5562d309fd6cb861c0aa4a6a5e45a8aaefa073e702834e9e6d  repro-env' | sha256sum -c -
+    wget 'https://github.com/kpcyrd/repro-env/releases/download/v0.3.1/repro-env'
+    echo '587de7128815795ac34a2d39b0c609db0ce7effa1b024911a26064b7f43f5d2c  repro-env' | sha256sum -c -
     sudo install -m755 repro-env -t /usr/bin
 ```
 
@@ -152,10 +152,10 @@ There are no inherent bootstrapping challenges, you can use any recent Rust comp
 All [pre-compiled binaries](https://github.com/kpcyrd/repro-env/releases) can be reproduced from source code:
 
 ```sh
-% wget https://github.com/kpcyrd/repro-env/releases/download/v0.3.0/repro-env
+% wget https://github.com/kpcyrd/repro-env/releases/download/v0.3.1/repro-env
 [...]
 % sha256sum repro-env
-3e5777d952a47d5562d309fd6cb861c0aa4a6a5e45a8aaefa073e702834e9e6d  repro-env
+587de7128815795ac34a2d39b0c609db0ce7effa1b024911a26064b7f43f5d2c  repro-env
 ```
 
 Since the build environment is fully documented and tracked in git all we need is checkout the corresponding git tag and run `make`:
@@ -163,10 +163,10 @@ Since the build environment is fully documented and tracked in git all we need i
 ```sh
 % git clone https://github.com/kpcyrd/repro-env
 % cd repro-env
-% git checkout v0.3.0
+% git checkout v0.3.1
 % make
 % sha256sum target/x86_64-unknown-linux-musl/release/repro-env
-3e5777d952a47d5562d309fd6cb861c0aa4a6a5e45a8aaefa073e702834e9e6d  target/x86_64-unknown-linux-musl/release/repro-env
+587de7128815795ac34a2d39b0c609db0ce7effa1b024911a26064b7f43f5d2c  target/x86_64-unknown-linux-musl/release/repro-env
 ```
 
 ## License
