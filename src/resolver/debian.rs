@@ -26,7 +26,7 @@ pub struct JsonSnapshotPkg {
     pub size: i64,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PkgEntry {
     name: String,
     version: String,
@@ -71,17 +71,18 @@ impl PkgDatabase {
             }
 
             let filename = filename.context("Package database entry is missing filename")?;
-            let old = self.pkgs.insert(
-                filename.to_string(),
-                PkgEntry {
-                    name: name.to_string(),
-                    version: version.context("Package database entry is missing version")?,
-                    sha256: sha256.context("Package database entry is missing sha256")?,
-                },
-            );
+            let new = PkgEntry {
+                name: name.to_string(),
+                version: version.context("Package database entry is missing version")?,
+                sha256: sha256.context("Package database entry is missing sha256")?,
+            };
+            let old = self.pkgs.insert(filename.to_string(), new.clone());
 
             if let Some(old) = old {
-                bail!("Filename is not unique in package database: filename={filename:?}, {old:?}");
+                // it's only a problem if they differ
+                if old != new {
+                    bail!("Filename is not unique in package database: filename={filename:?}, old={old:?}, new={new:?}");
+                }
             }
         }
 
