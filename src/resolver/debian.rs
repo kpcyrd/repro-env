@@ -46,7 +46,9 @@ impl PkgDatabase {
         while let Some(line) = lines.next() {
             let line = line?;
             trace!("Found line in debian package database: {line:?}");
-            let Some(name) = line.strip_prefix("Package: ") else { bail!("Unexpected line in database (expected `Package: `): {line:?}") };
+            let Some(name) = line.strip_prefix("Package: ") else {
+                bail!("Unexpected line in database (expected `Package: `): {line:?}")
+            };
             let mut version = None;
             let mut filename = None;
             let mut sha256 = None;
@@ -99,7 +101,9 @@ impl PkgDatabase {
                 .header()
                 .path()
                 .context("Filename was not valid utf-8")?;
-            let Some(extension) = path.extension() else { continue };
+            let Some(extension) = path.extension() else {
+                continue;
+            };
 
             if extension.to_str() == Some("lz4") {
                 db.import_lz4(entry)?;
