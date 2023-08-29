@@ -14,7 +14,7 @@ impl Client {
         Ok(Client { http })
     }
 
-    pub async fn fetch(&self, url: &str) -> Result<bytes::Bytes> {
+    pub async fn request(&self, url: &str) -> Result<reqwest::Response> {
         info!("Downloading {url:?}...");
         let response = self
             .http
@@ -24,6 +24,11 @@ impl Client {
             .context("Failed to send http request")?
             .error_for_status()
             .context("Received http error")?;
+        Ok(response)
+    }
+
+    pub async fn fetch(&self, url: &str) -> Result<bytes::Bytes> {
+        let response = self.request(url).await?;
         let buf = response.bytes().await.context("Failed to read http body")?;
         Ok(buf)
     }
