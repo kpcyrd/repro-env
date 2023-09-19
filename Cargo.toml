@@ -38,5 +38,5 @@ sha2 = "0.10.7"
 tar = "0.4.38"
 tempfile = "3.6.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs", "process", "signal"] }
-toml = "0.7.5"
+toml = "0.8"
 urlencoding = "2.1.2"
