@@ -252,6 +252,7 @@ pub async fn resolve_dependencies(
             url,
             sha256: package.sha256.to_string(),
             signature: None,
+            installed: false,
         });
     }
 
