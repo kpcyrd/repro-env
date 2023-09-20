@@ -63,6 +63,11 @@ With github actions:
     sudo install -m755 repro-env -t /usr/bin
 ```
 
+| Package integration                | Status |
+| ---------------------------------- | ------ |
+| [Arch Linux](#packages-arch-linux) | ✅ Fully supported, no known issues |
+| [Debian](#packages-debian)         | ⚠️ Fully integrated, but snapshot service is frequently slow or unavailable |
+
 ## Packages: Arch Linux
 
 Arch Linux hosts a comprehensive collection of recent compilers at https://archive.archlinux.org. You can create a `[packages]` section in your **repro-env.toml** with `system = "archlinux"` to install additional packages with pacman.
