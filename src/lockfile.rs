@@ -34,6 +34,15 @@ pub struct PackageLock {
     pub sha256: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub signature: Option<String>,
+    /// If true, this package is already present in the container and does not
+    /// need to be installed. It's only in the lockfile to make the
+    /// repro-env.lock diff easier to read and help git's delta-compression.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub installed: bool,
+}
+
+fn is_false(value: &bool) -> bool {
+    !value
 }
 
 #[cfg(test)]
@@ -57,6 +66,7 @@ mod tests {
                     sha256: "6a3d2acaa396c4bd72fe3f61a3256d881e3fc2cf326113cf331f168e36dd9a3c".to_string(),
                     signature: Some(
 "iHUEABYIAB0WIQQEKYl95fO9rFN6MGltQr3RFuAGjwUCZKPPXgAKCRBtQr3RFuAGj9oXAP94RQ1sKD53/RxVYlVEEOjKHvOmrWvDkt1veMYygnlnIgD+MLg/TT6d71kE8F08+JH+EcnG7wQow5Xr/qBo1VPLdgQ=".to_string()),
+                    installed: false,
                 },
                 PackageLock {
                     name: "binutils".to_string(),
@@ -66,6 +76,7 @@ mod tests {
                     sha256: "b65fd16001578e10b602e577a8031cbfffc1164caf47ed9ba00c60d804519430".to_string(),
                     signature: Some(
 "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZG6Rg18UgAAAAAAuAChpc3N1ZXItZnByQG5vdGF0aW9ucy5vcGVucGdwLmZpZnRoaG9yc2VtYW4ubmV0MDVDNzc3NUE5RThCOTc3NDA3RkUwOEU2OUQ0QzVBQTE1NDI2REEwQQAKCRCdTFqhVCbaCge2AQD/LGBeHRaeO8xh4E/bAYfqd1O/OFqk2DrQBJ73cdKl2gD9EC8p4U/cXQK8V774m6LSS50usH5pxcQWEq/H0SF+FgM=".to_string()),
+                    installed: false,
                 }
             ],
         };
@@ -117,6 +128,7 @@ signature = "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZG6Rg18UgAAAAAAuAChpc3N
                     url: "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils_2.40-2_amd64.deb".to_string(),
                     sha256: "83c3e20b53e1fbd84d764c3ba27d26a0376e361ae5d7fb37120196934dd87424".to_string(),
                     signature: None,
+                    installed: false,
                 },
                 PackageLock {
                     name: "binutils-common".to_string(),
@@ -125,6 +137,7 @@ signature = "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZG6Rg18UgAAAAAAuAChpc3N
                     url: "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-common_2.40-2_amd64.deb".to_string(),
                     sha256: "ab314134f43a0891a48f69a9bc33d825da748fa5e0ba2bebb7a5c491b026f1a0".to_string(),
                     signature: None,
+                    installed: false,
                 }
             ],
         };

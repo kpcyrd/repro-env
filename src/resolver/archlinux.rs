@@ -181,6 +181,7 @@ pub async fn resolve_dependencies(
             url: pkg.archive_url()?,
             sha256: pkg.sha256()?.to_string(),
             signature: Some(pkg.signature()?.to_string()),
+            installed: false,
         });
     }
 

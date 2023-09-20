@@ -276,12 +276,19 @@ pub async fn build(build: &args::Build) -> Result<()> {
 
     let mut mounts = vec![(pwd, "/build".to_string())];
 
-    let extra = if !lockfile.packages.is_empty() {
-        download_dependencies(&lockfile.packages).await?;
+    // ignore packages that are already present in the container
+    let dependencies = lockfile
+        .packages
+        .into_iter()
+        .filter(|p| !p.installed)
+        .collect::<Vec<_>>();
+
+    let extra = if !dependencies.is_empty() {
+        download_dependencies(&dependencies).await?;
 
         let path = paths::repro_env_dir()?;
         let temp_dir = tempfile::Builder::new().prefix("env.").tempdir_in(path)?;
-        let pkgs = setup_extra_folder(temp_dir.path(), &lockfile.packages).await?;
+        let pkgs = setup_extra_folder(temp_dir.path(), &dependencies).await?;
 
         let path = temp_dir
             .path()
