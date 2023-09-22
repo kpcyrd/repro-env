@@ -105,6 +105,10 @@ async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
 
 pub fn verify_pin_metadata(pkg: &[u8], pin: &PackageLock) -> Result<()> {
     let pkg = match pin.system.as_str() {
+        "alpine" => {
+            warn!("alpine pkg metadata isn't validated yet");
+            return Ok(());
+        }
         "archlinux" => {
             pkgs::archlinux::parse(pkg).context("Failed to parse data as archlinux package")?
         }
@@ -170,6 +174,7 @@ pub async fn setup_extra_folder(
 
         // setup extra data
         match package.system.as_str() {
+            "alpine" => (),
             "archlinux" => {
                 let signature = package
                     .signature
@@ -210,6 +215,20 @@ pub async fn run_build(
     if let Some((_, pkgs)) = extra {
         for (system, pkgs) in pkgs {
             match system.as_str() {
+                "alpine" => {
+                    let mut cmd = vec![
+                        "apk".to_string(),
+                        "add".to_string(),
+                        "--no-network".to_string(),
+                        "--".to_string(),
+                    ];
+                    for pkg in pkgs {
+                        cmd.push(format!("/extra/{pkg}"));
+                    }
+
+                    info!("Installing dependencies...");
+                    container.exec(&cmd, container::Exec::default()).await?;
+                }
                 "archlinux" => {
                     let mut cmd = vec![
                         "pacman".to_string(),

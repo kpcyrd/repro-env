@@ -326,7 +326,7 @@ ninja
     #[test]
     fn test_database_cache_import() -> Result<()> {
         let mut db = DatabaseCache::default();
-        assert_eq!(db.has_repo("core"), false);
+        assert!(!db.has_repo("core"));
 
         let data = {
             let mut tar =
@@ -432,7 +432,7 @@ procps-ng
             tar.into_inner()?.finish()?
         };
         db.import_repo("core", &data)?;
-        assert_eq!(db.has_repo("core"), true);
+        assert!(db.has_repo("core"));
 
         let pkg = db.get_package("rust")?;
         let mut expected = Package::default();

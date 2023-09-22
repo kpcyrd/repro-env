@@ -86,6 +86,10 @@ jobs:
             cmd: gcc -static -o hello hello.c
             output: hello
             sha256: c80d8cc7fe6ccead7af086ef0b46bbf39f511acf4a9f27dfa93020315777f8a7
+          - folder: examples/alpine
+            cmd: gcc -static -o hello hello.c
+            output: hello
+            sha256: a312585d54252990c2264351769f1cf2539f674db1142c7ea18fe10096debf12
 
     name: ${{ matrix.test.folder }}
     runs-on: ubuntu-22.04

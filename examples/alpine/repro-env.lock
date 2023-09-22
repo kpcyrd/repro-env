@@ -1,0 +1,107 @@
+[container]
+image = "docker.io/library/alpine@sha256:7144f7bab3d4c2648d7e59409f15ec52a18006a128c733fcff20d3a4a54ba44a"
+
+[[package]]
+name = "binutils"
+version = "2.40-r7"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/binutils-2.40-r7.apk"
+sha256 = "6b1bf117b8f0a15862b27ff77a412eaccf2e7d8048a9cc0e3903e44930547c80"
+
+[[package]]
+name = "gcc"
+version = "12.2.1_git20220924-r10"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/gcc-12.2.1_git20220924-r10.apk"
+sha256 = "ff9dc5bf2b8d80cc560c49ce3156d31e88eed94517781ee5e1b30c5ee7db7ea2"
+
+[[package]]
+name = "gmp"
+version = "6.2.1-r3"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/gmp-6.2.1-r3.apk"
+sha256 = "b81925ecab46d1737c3ee8cbe18b8a89f4ec075f82dcd761ec572cd0e9609b5c"
+
+[[package]]
+name = "isl26"
+version = "0.26-r1"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/isl26-0.26-r1.apk"
+sha256 = "25847e5374469cc46dc419904c10ccd87e4f59fa879fb50ddba37651c201bfcc"
+
+[[package]]
+name = "libatomic"
+version = "12.2.1_git20220924-r10"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libatomic-12.2.1_git20220924-r10.apk"
+sha256 = "01c70a001051e16a0d6eb6c5a8e53ad420f29f320d8824af509caa381b370dc4"
+
+[[package]]
+name = "libcrypto3"
+version = "3.1.3-r0"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libcrypto3-3.1.3-r0.apk"
+sha256 = "99fc875ddfb6e7a674f567e019797a0997e444a9fab05c1c404d68902992ef0a"
+
+[[package]]
+name = "libgcc"
+version = "12.2.1_git20220924-r10"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libgcc-12.2.1_git20220924-r10.apk"
+sha256 = "51c4130bac12e199ad216f0395d09f8ee3086ec143daf2efb142f63bd23c5158"
+
+[[package]]
+name = "libgomp"
+version = "12.2.1_git20220924-r10"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libgomp-12.2.1_git20220924-r10.apk"
+sha256 = "4d73b1a5130ce80c7bc2a9a0a785c4d982a772d79631c1eb4e1be2e8e5222dbb"
+
+[[package]]
+name = "libssl3"
+version = "3.1.3-r0"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libssl3-3.1.3-r0.apk"
+sha256 = "264d7e5c25b9ec6df6cdaf3a7f3cc066986df7f1cb3ad356107e5a75d5952593"
+
+[[package]]
+name = "libstdc++"
+version = "12.2.1_git20220924-r10"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libstdc++-12.2.1_git20220924-r10.apk"
+sha256 = "9f358c77cf1445db06c0cc45c541438bbba01922bb2ec0a521302ec8807cf017"
+
+[[package]]
+name = "make"
+version = "4.4.1-r1"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/make-4.4.1-r1.apk"
+sha256 = "139e1d308ed231bd6c3b35db9c8bee88f732609817524663dfeb7ecc3d7445c8"
+
+[[package]]
+name = "mpc1"
+version = "1.3.1-r1"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/mpc1-1.3.1-r1.apk"
+sha256 = "34d68badb2d45d16221c5e5029133d100a9a66b3899e334a11e19e50d3925685"
+
+[[package]]
+name = "mpfr4"
+version = "4.2.0_p12-r0"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/mpfr4-4.2.0_p12-r0.apk"
+sha256 = "f06c43c2352b35510625b4b624b85eccd8e07bb1c6d93d37681c3b1fc821f061"
+
+[[package]]
+name = "musl-dev"
+version = "1.2.4-r1"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/musl-dev-1.2.4-r1.apk"
+sha256 = "18a30c90a24ddad119ed20176794c013aa9586477ce6e4f6832de5f7a8d11c1c"
+
+[[package]]
+name = "zstd-libs"
+version = "1.5.5-r4"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/zstd-libs-1.5.5-r4.apk"
+sha256 = "79c0aa9461b1cdd238f17e24cc00916c282df2b6ba060f339993b277b4258016"
