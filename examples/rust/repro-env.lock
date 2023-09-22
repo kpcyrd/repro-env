@@ -1,2 +1,2 @@
 [container]
-image = "docker.io/library/rust@sha256:22760a18d52be83a74f5df8b190b8e9baa1e6ce7d9bda40630acc8ba5328a2fd"
+image = "docker.io/library/rust@sha256:f53121188c16de8c8f761ba95a0c7cc84bbc44cd74eceb3fbac75f5653fba809"

@@ -1,5 +1,5 @@
 [container]
-image = "debian@sha256:3d868b5eb908155f3784317b3dda2941df87bbbbaa4608f84881de66d9bb297b"
+image = "debian@sha256:eaace54a93d7b69c7c52bb8ddf9b3fcba0c106a497bc1fdbb89a6299cf945c63"
 
 [[package]]
 name = "binutils"
@@ -73,17 +73,17 @@ sha256 = "fcf55b99e5f8a78f3c8ce9b6957f1024f394cf20c196b100d308a57e43547710"
 
 [[package]]
 name = "libc-dev-bin"
-version = "2.36-9"
+version = "2.36-9+deb12u1"
 system = "debian"
-url = "https://snapshot.debian.org/archive/debian/20230411T030420Z/pool/main/g/glibc/libc-dev-bin_2.36-9_amd64.deb"
-sha256 = "2b3b715f8887fe41fb1aa7437d380d1d78a87c6c06e9752ea0fd2b40a27a997f"
+url = "https://snapshot.debian.org/archive/debian/20230714T151132Z/pool/main/g/glibc/libc-dev-bin_2.36-9+deb12u1_amd64.deb"
+sha256 = "bf58b617d8f08b62464944cb6fcd70802256a2479b9ef0c46b039f0d1df1589d"
 
 [[package]]
 name = "libc6-dev"
-version = "2.36-9"
+version = "2.36-9+deb12u1"
 system = "debian"
-url = "https://snapshot.debian.org/archive/debian/20230411T030420Z/pool/main/g/glibc/libc6-dev_2.36-9_amd64.deb"
-sha256 = "fbb98612d020ffd47ed7b327dc2b33e3d29a784b171e952367924e5be3c3752f"
+url = "https://snapshot.debian.org/archive/debian/20230714T151132Z/pool/main/g/glibc/libc6-dev_2.36-9+deb12u1_amd64.deb"
+sha256 = "1b555d8ac50bef5fa703d743e3e964bea2fa45b68ce5df5ebc74d296d05e80a6"
 
 [[package]]
 name = "libcc1-0"
@@ -276,10 +276,10 @@ sha256 = "e46fbb519b4342c114b2fa19bcdb736e294eadc769fae75d6bc2e94a4db67f15"
 
 [[package]]
 name = "linux-libc-dev"
-version = "6.1.37-1"
+version = "6.1.52-1"
 system = "debian"
-url = "https://snapshot.debian.org/archive/debian-security/20230705T195545Z/pool/updates/main/l/linux/linux-libc-dev_6.1.37-1_amd64.deb"
-sha256 = "1ce6d7c4e85c285a33348a9fe9913f6091713e56a1b786a81b4b7fdfd97e1e09"
+url = "https://snapshot.debian.org/archive/debian-security/20230909T213504Z/pool/updates/main/l/linux/linux-libc-dev_6.1.52-1_amd64.deb"
+sha256 = "ddc29d011bb9834a8ae29304a13aa589b8617936904e19732ee3c03b3ac0c649"
 
 [[package]]
 name = "rpcsvc-proto"

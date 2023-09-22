@@ -1,2 +1,2 @@
 [container]
-image = "docker.io/library/golang@sha256:fd9d9d7194ec40a9a6ae89fcaef3e47c47de7746dd5848ab5343695dbbd09f8c"
+image = "docker.io/library/golang@sha256:96634e55b363cb93d39f78fb18aa64abc7f96d372c176660d7b8b6118939d97b"
