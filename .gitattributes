@@ -1,0 +1,2 @@
+# Exclude lock file from stats and hide it in diffs
+**/repro-env.lock linguist-generated
