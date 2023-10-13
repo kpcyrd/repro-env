@@ -1,5 +1,5 @@
 [container]
-image = "docker.io/library/alpine@sha256:7144f7bab3d4c2648d7e59409f15ec52a18006a128c733fcff20d3a4a54ba44a"
+image = "docker.io/library/alpine@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978"
 
 [[package]]
 name = "binutils"
@@ -7,6 +7,20 @@ version = "2.40-r7"
 system = "alpine"
 url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/binutils-2.40-r7.apk"
 sha256 = "6b1bf117b8f0a15862b27ff77a412eaccf2e7d8048a9cc0e3903e44930547c80"
+
+[[package]]
+name = "busybox"
+version = "1.36.1-r4"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/busybox-1.36.1-r4.apk"
+sha256 = "abccb59dd5b9e64b782bbfd97b08c79a2214cc53567fb334aa003815505a007f"
+
+[[package]]
+name = "busybox-binsh"
+version = "1.36.1-r4"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/busybox-binsh-1.36.1-r4.apk"
+sha256 = "7c814959a22f90d9d46ce4b0a449fedd1af39f66f90478002b8d54ceb762f1e8"
 
 [[package]]
 name = "gcc"
@@ -37,13 +51,6 @@ url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libatomic-12.2.1_
 sha256 = "01c70a001051e16a0d6eb6c5a8e53ad420f29f320d8824af509caa381b370dc4"
 
 [[package]]
-name = "libcrypto3"
-version = "3.1.3-r0"
-system = "alpine"
-url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libcrypto3-3.1.3-r0.apk"
-sha256 = "99fc875ddfb6e7a674f567e019797a0997e444a9fab05c1c404d68902992ef0a"
-
-[[package]]
 name = "libgcc"
 version = "12.2.1_git20220924-r10"
 system = "alpine"
@@ -56,13 +63,6 @@ version = "12.2.1_git20220924-r10"
 system = "alpine"
 url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libgomp-12.2.1_git20220924-r10.apk"
 sha256 = "4d73b1a5130ce80c7bc2a9a0a785c4d982a772d79631c1eb4e1be2e8e5222dbb"
-
-[[package]]
-name = "libssl3"
-version = "3.1.3-r0"
-system = "alpine"
-url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/libssl3-3.1.3-r0.apk"
-sha256 = "264d7e5c25b9ec6df6cdaf3a7f3cc066986df7f1cb3ad356107e5a75d5952593"
 
 [[package]]
 name = "libstdc++"
@@ -93,11 +93,32 @@ url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/mpfr4-4.2.0_p12-r
 sha256 = "f06c43c2352b35510625b4b624b85eccd8e07bb1c6d93d37681c3b1fc821f061"
 
 [[package]]
-name = "musl-dev"
-version = "1.2.4-r1"
+name = "musl"
+version = "1.2.4-r2"
 system = "alpine"
-url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/musl-dev-1.2.4-r1.apk"
-sha256 = "18a30c90a24ddad119ed20176794c013aa9586477ce6e4f6832de5f7a8d11c1c"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/musl-1.2.4-r2.apk"
+sha256 = "21c732ba7b1a7088a85d79a781076e3d5ec41b0bd52933ecb47bcc5804d6f501"
+
+[[package]]
+name = "musl-dev"
+version = "1.2.4-r2"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/musl-dev-1.2.4-r2.apk"
+sha256 = "7ef08becf7225f2515d045d25082aa9fe00282e1224bc3f816b5062741c958ec"
+
+[[package]]
+name = "musl-utils"
+version = "1.2.4-r2"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/musl-utils-1.2.4-r2.apk"
+sha256 = "bd0c26757235f099424ef43cb27ae4c2aab39b5b17acb6ef0d5a5dcdd26355a2"
+
+[[package]]
+name = "ssl_client"
+version = "1.36.1-r4"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/ssl_client-1.36.1-r4.apk"
+sha256 = "9e25d61d82c55c19a94b632170145c2d511fdfa87c6fb73a0718a0bb4960cf67"
 
 [[package]]
 name = "zstd-libs"
