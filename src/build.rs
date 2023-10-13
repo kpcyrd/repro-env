@@ -105,10 +105,7 @@ async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
 
 pub fn verify_pin_metadata(pkg: &[u8], pin: &PackageLock) -> Result<()> {
     let pkg = match pin.system.as_str() {
-        "alpine" => {
-            warn!("alpine pkg metadata isn't validated yet");
-            return Ok(());
-        }
+        "alpine" => pkgs::alpine::parse(pkg).context("Failed to parse data as alpine package")?,
         "archlinux" => {
             pkgs::archlinux::parse(pkg).context("Failed to parse data as archlinux package")?
         }
