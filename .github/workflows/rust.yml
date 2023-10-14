@@ -73,19 +73,23 @@ jobs:
           - folder: examples/rust
             cmd: cargo build --release
             output: target/release/rust
-            sha256: 56f1a43e65309bcb413e141ae0612b330c4f8471378c9ea830948002cbf35192
+            sha256: ea8997342bef06680784c9ea6ef7e22f7ba089e98927e870905503d0bf39acb1
           - folder: examples/golang
             cmd: go build .
             output: hello
-            sha256: e178cc1f0399ea237f757b258c85c2b92a6f26f3a3a687ab42d46bc414c8e939
+            sha256: dd41bdb93af4fb798f6b079368d6ee50a6907044c292ba6d2c98420ca8f012bf
           - folder: examples/debian
             cmd: gcc -static -o hello hello.c
             output: hello
-            sha256: 3a3d89ab8a7cf8a7355eb6c2727e1b75711b015b7fa67b91ebdafbe28896f9f6
+            sha256: 2b24cfa838189c3aa6fa2440afe8508654830b6d3bad85d9b31958ae5c3fb429
           - folder: examples/archlinux
             cmd: gcc -static -o hello hello.c
             output: hello
-            sha256: c80d8cc7fe6ccead7af086ef0b46bbf39f511acf4a9f27dfa93020315777f8a7
+            sha256: 04e03fd681793db603feb66a4c8e8df3858f1e31372dc017d7a0cf255faf84c5
+          - folder: examples/alpine
+            cmd: gcc -static -o hello hello.c
+            output: hello
+            sha256: a312585d54252990c2264351769f1cf2539f674db1142c7ea18fe10096debf12
 
     name: ${{ matrix.test.folder }}
     runs-on: ubuntu-22.04

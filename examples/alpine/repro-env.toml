@@ -1,0 +1,6 @@
+[container]
+image = "docker.io/library/alpine"
+
+[packages]
+system = "alpine"
+dependencies = ["gcc", "make", "musl-dev"]

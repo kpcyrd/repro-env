@@ -1,3 +1,4 @@
+pub mod alpine;
 pub mod archlinux;
 pub mod container;
 pub mod debian;
@@ -13,6 +14,7 @@ pub async fn resolve(args: &args::Update, manifest: &Manifest) -> Result<Lockfil
     let mut dependencies = Vec::new();
     if let Some(packages) = &manifest.packages {
         match packages.system.as_str() {
+            "alpine" => alpine::resolve(args, packages, &container, &mut dependencies).await?,
             "archlinux" => {
                 archlinux::resolve(args, packages, &container, &mut dependencies).await?
             }

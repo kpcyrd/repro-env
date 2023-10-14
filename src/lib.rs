@@ -8,4 +8,7 @@ pub mod manifest;
 pub mod paths;
 pub mod pkgs;
 pub mod resolver;
+#[cfg(test)]
+pub mod test_data;
 pub mod update;
+pub mod utils;
