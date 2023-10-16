@@ -63,10 +63,11 @@ With github actions:
     sudo install -m755 repro-env -t /usr/bin
 ```
 
-| Package integration                | Status |
-| ---------------------------------- | ------ |
-| [Arch Linux](#packages-arch-linux) | ✅ Fully supported, no known issues |
-| [Debian](#packages-debian)         | ⚠️ Fully integrated, but snapshot service is frequently slow or unavailable |
+| Package integration                    | Status | Archive infrastructure |
+| -------------------------------------- | ------ | ---------------------- |
+| [Arch Linux](#packages-arch-linux)     | ✅ Fully supported, no known issues | ✅ Superb, operated by Arch Linux |
+| [Debian](#packages-debian)             | ✅ No known issues | ⚠️ Snapshot service is frequently slow or unavailable |
+| [Alpine Linux](#packages-alpine-linux) | ✅ No known issues | ❌ No public archive, links are likely to become 404 |
 
 ## Packages: Arch Linux
 
@@ -144,6 +145,44 @@ version = "2.40-2"
 system = "debian"
 url = "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-common_2.40-2_amd64.deb"
 sha256 = "ab314134f43a0891a48f69a9bc33d825da748fa5e0ba2bebb7a5c491b026f1a0"
+
+# [...]
+```
+
+## Packages: Alpine Linux
+
+Alpine is very popular in the container world, based on musl libc and has a wide selection of compilers in recent versions. You can create a `[packages]` section in your **repro-env.toml** with `system = "alpine"` to install additional packages with apk. Unfortunately there's currently no public archive of old Alpine packages, you should keep this in mind because your repro-env build environments **are likely to become uninstallable!**
+
+```toml
+# repro-env.toml
+[container]
+image = "docker.io/library/alpine"
+
+[packages]
+system = "alpine"
+dependencies = ["gcc", "make", "musl-dev"]
+```
+
+The resolved **repro-env.lock** is going to contain the sha256 of the resolved container image you use as a base, and a list of `[[package]]` that should be installed/upgraded inside of the container before starting the build.
+
+```toml
+# repro-env.lock
+[container]
+image = "docker.io/library/alpine@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978"
+
+[[package]]
+name = "binutils"
+version = "2.40-r7"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/binutils-2.40-r7.apk"
+sha256 = "6b1bf117b8f0a15862b27ff77a412eaccf2e7d8048a9cc0e3903e44930547c80"
+
+[[package]]
+name = "busybox"
+version = "1.36.1-r4"
+system = "alpine"
+url = "https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/busybox-1.36.1-r4.apk"
+sha256 = "abccb59dd5b9e64b782bbfd97b08c79a2214cc53567fb334aa003815505a007f"
 
 # [...]
 ```
