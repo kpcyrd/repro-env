@@ -663,6 +663,7 @@ checksum = "d530e1a18b1cb4c484e6e34556a0d948706958449fca0cab753d649f2bce3d1f"
 dependencies = [
  "equivalent",
  "hashbrown",
+ "serde",
 ]
 
 [[package]]
@@ -952,6 +953,7 @@ dependencies = [
  "fd-lock",
  "flate2",
  "hex",
+ "indexmap",
  "log",
  "lz4_flex",
  "lzma-rs",

@@ -1,4 +1,5 @@
 use crate::errors::*;
+use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -23,7 +24,7 @@ pub struct ContainerManifest {
 pub struct PackagesManifest {
     pub system: String,
     #[serde(default)]
-    pub dependencies: Vec<String>,
+    pub dependencies: IndexSet<String>,
 }
 
 #[cfg(test)]
