@@ -264,6 +264,7 @@ pub async fn run_build(
             &build.cmd,
             container::Exec {
                 cwd: Some("/build"),
+                env: &build.env,
                 ..Default::default()
             },
         )
@@ -275,8 +276,11 @@ pub async fn run_build(
 pub async fn build(build: &args::Build) -> Result<()> {
     container::test_for_unprivileged_userns_clone().await?;
 
-    let path = build.file.as_deref().unwrap_or(Path::new("repro-env.lock"));
+    // ensure arguments make sense
+    build.validate()?;
 
+    // load lockfile
+    let path = build.file.as_deref().unwrap_or(Path::new("repro-env.lock"));
     let buf = fs::read_to_string(path)
         .await
         .with_context(|| anyhow!("Failed to read dependency lockfile: {path:?}"))?;
@@ -284,6 +288,7 @@ pub async fn build(build: &args::Build) -> Result<()> {
     let lockfile = Lockfile::deserialize(&buf)?;
     trace!("Loaded dependency lockfile from file: {lockfile:?}");
 
+    // mount current directory into container
     let pwd = env::current_dir()?;
     let pwd = pwd
         .into_os_string()
