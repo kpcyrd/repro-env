@@ -2,6 +2,7 @@ use crate::errors::*;
 use clap::{ArgAction, CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
 use std::collections::HashSet;
+use std::env;
 use std::io;
 use std::path::PathBuf;
 
@@ -46,7 +47,14 @@ impl Build {
     pub fn validate(&self) -> Result<()> {
         let mut env_keys = HashSet::new();
         for env in &self.env {
-            let key = env.split_once('=').unwrap_or((env, ""));
+            let key = if let Some((key, _value)) = env.split_once('=') {
+                key
+            } else if env::var(env).is_ok() {
+                env
+            } else {
+                bail!("Referenced environment variables does not exist: {env:?}");
+            };
+
             if !env_keys.insert(key) {
                 bail!("Can not set environment multiple times: {key:?}");
             }
