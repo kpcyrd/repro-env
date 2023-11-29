@@ -1,6 +1,8 @@
 use crate::errors::*;
 use clap::{ArgAction, CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
+use std::collections::HashSet;
+use std::env;
 use std::io;
 use std::path::PathBuf;
 
@@ -33,9 +35,32 @@ pub struct Build {
     /// Do not delete the build container, wait for ctrl-c
     #[arg(short, long)]
     pub keep: bool,
+    /// Pass environment variables into the build container (FOO=bar or just FOO to lookup the value)
+    #[arg(short, long)]
+    pub env: Vec<String>,
     /// The command to execute inside the build container
     #[arg(required = true)]
     pub cmd: Vec<String>,
+}
+
+impl Build {
+    pub fn validate(&self) -> Result<()> {
+        let mut env_keys = HashSet::new();
+        for env in &self.env {
+            let key = if let Some((key, _value)) = env.split_once('=') {
+                key
+            } else if env::var(env).is_ok() {
+                env
+            } else {
+                bail!("Referenced environment variables does not exist: {env:?}");
+            };
+
+            if !env_keys.insert(key) {
+                bail!("Can not set environment multiple times: {key:?}");
+            }
+        }
+        Ok(())
+    }
 }
 
 /// Update all dependencies of the reproducible environment

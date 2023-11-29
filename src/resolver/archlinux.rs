@@ -174,11 +174,20 @@ pub async fn resolve_dependencies(
 
         let pkg = dbs.get_package(name)?;
 
+        // record provides if it mentions a dependency
+        let mut provides = Vec::new();
+        for value in pkg.values.get("%PROVIDES%").into_iter().flatten() {
+            if manifest.dependencies.contains(value) {
+                provides.push(value.to_string());
+            }
+        }
+
         dependencies.push(PackageLock {
             name: name.to_string(),
             version: version.to_string(),
             system: "archlinux".to_string(),
             url: pkg.archive_url()?,
+            provides,
             sha256: pkg.sha256()?.to_string(),
             signature: Some(pkg.signature()?.to_string()),
             installed: false,

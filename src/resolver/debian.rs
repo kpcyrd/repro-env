@@ -10,6 +10,7 @@ use sha1::Sha1;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::io::prelude::*;
+use std::io::Lines;
 use tokio::fs;
 
 #[derive(Debug, Deserialize)]
@@ -30,6 +31,7 @@ pub struct JsonSnapshotPkg {
 pub struct PkgEntry {
     name: String,
     version: String,
+    provides: Vec<String>,
     sha256: String,
 }
 
@@ -41,8 +43,10 @@ pub struct PkgDatabase {
 impl PkgDatabase {
     pub fn import_lz4<R: Read>(&mut self, reader: R) -> Result<()> {
         let rdr = lz4_flex::frame::FrameDecoder::new(reader);
-        let mut lines = rdr.lines();
+        self.import_lines_stream(rdr.lines())
+    }
 
+    pub fn import_lines_stream<R: BufRead>(&mut self, mut lines: Lines<R>) -> Result<()> {
         while let Some(line) = lines.next() {
             let line = line?;
             trace!("Found line in debian package database: {line:?}");
@@ -51,6 +55,7 @@ impl PkgDatabase {
             };
             let mut version = None;
             let mut filename = None;
+            let mut provides = Vec::new();
             let mut sha256 = None;
 
             for line in &mut lines {
@@ -67,6 +72,11 @@ impl PkgDatabase {
                         .map(|(_, filename)| filename)
                         .unwrap_or(value);
                     filename = Some(value.to_string());
+                } else if let Some(value) = line.strip_prefix("Provides: ") {
+                    for entry in value.split(", ") {
+                        let (name, _) = entry.split_once(' ').unwrap_or((entry, ""));
+                        provides.push(name.to_string());
+                    }
                 } else if let Some(value) = line.strip_prefix("SHA256: ") {
                     sha256 = Some(value.to_string());
                 }
@@ -76,6 +86,7 @@ impl PkgDatabase {
             let new = PkgEntry {
                 name: name.to_string(),
                 version: version.context("Package database entry is missing version")?,
+                provides,
                 sha256: sha256.context("Package database entry is missing sha256")?,
             };
             let old = self.pkgs.insert(filename.to_string(), new.clone());
@@ -245,11 +256,20 @@ pub async fn resolve_dependencies(
         let url =
             format!("https://snapshot.debian.org/archive/{archive_name}/{first_seen}{path}/{name}");
 
+        // record provides if it mentions a dependency
+        let mut provides = Vec::new();
+        for value in &package.provides {
+            if manifest.dependencies.contains(value) {
+                provides.push(value.to_string());
+            }
+        }
+
         dependencies.push(PackageLock {
             name: package.name.to_string(),
             version: package.version.to_string(),
             system: "debian".to_string(),
             url,
+            provides,
             sha256: package.sha256.to_string(),
             signature: None,
             installed: false,
@@ -284,6 +304,7 @@ pub async fn resolve(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::BufReader;
 
     #[test]
     fn test_pkg_database() -> Result<()> {
@@ -352,6 +373,7 @@ SHA256: 26dd439266153e38d3e6fbe0fe2dbbb41f20994afa688faa71f38427348589ed
                 PkgEntry {
                     name: "binutils-aarch64-linux-gnu".to_string(),
                     version: "2.40-2".to_string(),
+                    provides: vec![],
                     sha256: "3d6f64a7a4ed6d73719f8fa2e85fd896f58ff7f211a6683942ba93de690aaa66"
                         .to_string(),
                 },
@@ -361,6 +383,7 @@ SHA256: 26dd439266153e38d3e6fbe0fe2dbbb41f20994afa688faa71f38427348589ed
                 PkgEntry {
                     name: "rustc".to_string(),
                     version: "1.63.0+dfsg1-2".to_string(),
+                    provides: vec![],
                     sha256: "26dd439266153e38d3e6fbe0fe2dbbb41f20994afa688faa71f38427348589ed"
                         .to_string(),
                 },
@@ -380,6 +403,7 @@ SHA256: 26dd439266153e38d3e6fbe0fe2dbbb41f20994afa688faa71f38427348589ed
             PkgEntry {
                 name: "rustc".to_string(),
                 version: "1.63.0+dfsg1-2".to_string(),
+                provides: vec![],
                 sha256: "26dd439266153e38d3e6fbe0fe2dbbb41f20994afa688faa71f38427348589ed"
                     .to_string(),
             },
@@ -394,6 +418,7 @@ SHA256: 26dd439266153e38d3e6fbe0fe2dbbb41f20994afa688faa71f38427348589ed
                 &PkgEntry {
                     name: "rustc".to_string(),
                     version: "1.63.0+dfsg1-2".to_string(),
+                    provides: vec![],
                     sha256: "26dd439266153e38d3e6fbe0fe2dbbb41f20994afa688faa71f38427348589ed"
                         .to_string(),
                 }
@@ -403,6 +428,55 @@ SHA256: 26dd439266153e38d3e6fbe0fe2dbbb41f20994afa688faa71f38427348589ed
         let result = db.find_by_apt_output("'http://deb.debian.org/debian/pool/main/n/non-existant/non-existant_1.2.3_amd64.deb' non-existant_1.2.3_amd64.deb 2612712 MD5Sum:5eaa6969388c512a206377bf813ab531");
         assert!(result.is_err());
 
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_provides() -> Result<()> {
+        let foo = BufReader::new(r#"Package: librust-repro-env-dev
+Source: rust-repro-env
+Version: 0.3.2-1
+Installed-Size: 175
+Maintainer: Debian Rust Maintainers <pkg-rust-maintainers@alioth-lists.debian.net>
+Architecture: amd64
+Provides: librust-repro-env+default-dev (= 0.3.2-1), librust-repro-env-0+default-dev (= 0.3.2-1), librust-repro-env-0-dev (= 0.3.2-1), librust-repro-env-0.3+default-dev (= 0.3.2-1), librust-repro-env-0.3-dev (= 0.3.2-1), librust-repro-env-0.3.2+default-dev (= 0.3.2-1), librust-repro-env-0.3.2-dev (= 0.3.2-1)
+Depends: librust-anyhow-1+default-dev (>= 1.0.71-~~), librust-ar-0.9+default-dev, librust-bytes-1+default-dev (>= 1.4.0-~~), librust-clap-4+default-dev, librust-clap-4+derive-dev, librust-clap-complete-4+default-dev, librust-clone-file-0.1+default-dev, librust-data-encoding-2+default-dev (>= 2.4.0-~~), librust-dirs-5+default-dev (>= 5.0.1-~~), librust-env-logger-0.10+default-dev, librust-fd-lock-3+default-dev, librust-flate2-1+default-dev (>= 1.0.26-~~), librust-hex-0.4+default-dev (>= 0.4.3-~~), librust-log-0.4+default-dev (>= 0.4.19-~~), librust-lz4-flex-0.11+default-dev (>= 0.11.1-~~), librust-lzma-rs-0.3+default-dev, librust-memchr-2+default-dev (>= 2.5.0-~~), librust-nix-0.26+sched-dev, librust-peekread-0.1+default-dev (>= 0.1.1-~~), librust-reqwest-0.11+rustls-tls-native-roots-dev (>= 0.11.18-~~), librust-reqwest-0.11+stream-dev (>= 0.11.18-~~), librust-reqwest-0.11+tokio-socks-dev (>= 0.11.18-~~), librust-ruzstd-0.4+default-dev, librust-serde-1+default-dev, librust-serde-1+derive-dev, librust-serde-json-1+default-dev, librust-sha1-0.10+default-dev (>= 0.10.5-~~), librust-sha2-0.10+default-dev (>= 0.10.7-~~), librust-tar-0.4+default-dev (>= 0.4.38-~~), librust-tempfile-3+default-dev (>= 3.6.0-~~), librust-tokio-1+default-dev, librust-tokio-1+fs-dev, librust-tokio-1+macros-dev, librust-tokio-1+process-dev, librust-tokio-1+rt-multi-thread-dev, librust-tokio-1+signal-dev, librust-toml-0.7+default-dev, librust-urlencoding-2+default-dev (>= 2.1.2-~~)
+Description: Dependency lockfiles for reproducible build environments 📦🔒 - Rust source code
+Multi-Arch: same
+Description-md5: 1023d39707057b0b09f9d6bf7deeb14e
+Section: utils
+Priority: optional
+Filename: pool/main/r/rust-repro-env/librust-repro-env-dev_0.3.2-1_amd64.deb
+Size: 40344
+MD5sum: 4dafbbe511b9a068728930e6811a0bf0
+SHA256: 2bb1befee1b89f0462b74d519be9b8c94c038d7f8a074d050d62985f47ec4164
+"#.as_bytes());
+        let mut db = PkgDatabase::default();
+        db.import_lines_stream(foo.lines())?;
+
+        let pkgs = {
+            let mut pkgs = HashMap::new();
+            pkgs.insert(
+                "librust-repro-env-dev_0.3.2-1_amd64.deb".to_string(),
+                PkgEntry {
+                    name: "librust-repro-env-dev".to_string(),
+                    version: "0.3.2-1".to_string(),
+                    provides: vec![
+                        "librust-repro-env+default-dev".to_string(),
+                        "librust-repro-env-0+default-dev".to_string(),
+                        "librust-repro-env-0-dev".to_string(),
+                        "librust-repro-env-0.3+default-dev".to_string(),
+                        "librust-repro-env-0.3-dev".to_string(),
+                        "librust-repro-env-0.3.2+default-dev".to_string(),
+                        "librust-repro-env-0.3.2-dev".to_string(),
+                    ],
+                    sha256: "2bb1befee1b89f0462b74d519be9b8c94c038d7f8a074d050d62985f47ec4164"
+                        .to_string(),
+                },
+            );
+            pkgs
+        };
+        assert_eq!(db, PkgDatabase { pkgs });
         Ok(())
     }
 }

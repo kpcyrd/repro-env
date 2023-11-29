@@ -47,6 +47,9 @@ This command loads a *repro-env.lock*, sets up the environment it describes in a
 *-k*, *--keep*
 	Do not delete the build container, wait for ctrl-c
 
+*-e* _env_, **--env** _env_
+	Pass environment variables into the build container (FOO=bar or just FOO to lookup the value)
+
 # PACKAGES: ARCH LINUX
 
 Arch Linux hosts a comprehensive collection of recent compilers at https://archive.archlinux.org. You can create a *[packages]* section in your *repro-env.toml* with *system = "archlinux"* to install additional packages with pacman.

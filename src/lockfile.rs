@@ -31,6 +31,8 @@ pub struct PackageLock {
     pub version: String,
     pub system: String,
     pub url: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub provides: Vec<String>,
     pub sha256: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub signature: Option<String>,
@@ -63,6 +65,7 @@ mod tests {
                     version: "20230704-1".to_string(),
                     system: "archlinux".to_string(),
                     url: "https://archive.archlinux.org/packages/a/archlinux-keyring/archlinux-keyring-20230704-1-any.pkg.tar.zst".to_string(),
+                    provides: vec![],
                     sha256: "6a3d2acaa396c4bd72fe3f61a3256d881e3fc2cf326113cf331f168e36dd9a3c".to_string(),
                     signature: Some(
 "iHUEABYIAB0WIQQEKYl95fO9rFN6MGltQr3RFuAGjwUCZKPPXgAKCRBtQr3RFuAGj9oXAP94RQ1sKD53/RxVYlVEEOjKHvOmrWvDkt1veMYygnlnIgD+MLg/TT6d71kE8F08+JH+EcnG7wQow5Xr/qBo1VPLdgQ=".to_string()),
@@ -73,6 +76,7 @@ mod tests {
                     version: "2.40-6".to_string(),
                     system: "archlinux".to_string(),
                     url: "https://archive.archlinux.org/packages/b/binutils/binutils-2.40-6-x86_64.pkg.tar.zst".to_string(),
+                    provides: vec![],
                     sha256: "b65fd16001578e10b602e577a8031cbfffc1164caf47ed9ba00c60d804519430".to_string(),
                     signature: Some(
 "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZG6Rg18UgAAAAAAuAChpc3N1ZXItZnByQG5vdGF0aW9ucy5vcGVucGdwLmZpZnRoaG9yc2VtYW4ubmV0MDVDNzc3NUE5RThCOTc3NDA3RkUwOEU2OUQ0QzVBQTE1NDI2REEwQQAKCRCdTFqhVCbaCge2AQD/LGBeHRaeO8xh4E/bAYfqd1O/OFqk2DrQBJ73cdKl2gD9EC8p4U/cXQK8V774m6LSS50usH5pxcQWEq/H0SF+FgM=".to_string()),
@@ -126,6 +130,7 @@ signature = "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZG6Rg18UgAAAAAAuAChpc3N
                     version: "2.40-2".to_string(),
                     system: "debian".to_string(),
                     url: "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils_2.40-2_amd64.deb".to_string(),
+                    provides: vec![],
                     sha256: "83c3e20b53e1fbd84d764c3ba27d26a0376e361ae5d7fb37120196934dd87424".to_string(),
                     signature: None,
                     installed: false,
@@ -135,6 +140,7 @@ signature = "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZG6Rg18UgAAAAAAuAChpc3N
                     version: "2.40-2".to_string(),
                     system: "debian".to_string(),
                     url: "https://snapshot.debian.org/archive/debian/20230115T211934Z/pool/main/b/binutils/binutils-common_2.40-2_amd64.deb".to_string(),
+                    provides: vec![],
                     sha256: "ab314134f43a0891a48f69a9bc33d825da748fa5e0ba2bebb7a5c491b026f1a0".to_string(),
                     signature: None,
                     installed: false,

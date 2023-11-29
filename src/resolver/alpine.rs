@@ -36,6 +36,7 @@ pub struct CacheEntry {
     name: String,
     version: String,
     arch: String,
+    provides: Vec<String>,
     checksum: String,
     repo_url: Rc<String>,
 }
@@ -44,6 +45,7 @@ pub struct CacheEntryDraft {
     pub name: Option<String>,
     pub version: Option<String>,
     pub arch: Option<String>,
+    pub provides: Vec<String>,
     pub checksum: Option<String>,
     pub repo_url: Rc<String>,
 }
@@ -56,6 +58,7 @@ impl TryFrom<CacheEntryDraft> for CacheEntry {
             name: draft.name.context("Missing name field")?,
             version: draft.version.context("Missing version field")?,
             arch: draft.arch.context("Missing arch field")?,
+            provides: draft.provides,
             checksum: draft.checksum.context("Missing checksum field")?,
             repo_url: draft.repo_url,
         })
@@ -68,6 +71,7 @@ impl CacheEntryDraft {
             name: None,
             version: None,
             arch: None,
+            provides: vec![],
             checksum: None,
             repo_url,
         }
@@ -113,6 +117,13 @@ impl DatabaseCache {
                     "A" => {
                         trace!("Package architecture: {value:?}");
                         draft.arch = Some(value.to_string());
+                    }
+                    "p" => {
+                        trace!("Package provides: {value:?}");
+                        for entry in value.split(' ') {
+                            let (name, _) = entry.split_once('=').unwrap_or((entry, ""));
+                            draft.provides.push(name.to_string());
+                        }
                     }
                     _ => trace!("Ignoring APKINDEX value key={key:?}, value={value:?}"),
                 }
@@ -329,11 +340,20 @@ pub async fn resolve_dependencies(
             sha256
         };
 
+        // record provides if it mentions a dependency
+        let mut provides = Vec::new();
+        for value in &pkg.provides {
+            if manifest.dependencies.contains(value) {
+                provides.push(value.to_string());
+            }
+        }
+
         dependencies.push(PackageLock {
             name: pkg.name.to_string(),
             version: pkg.version.to_string(),
             system: "alpine".to_string(),
             url,
+            provides,
             sha256,
             signature: None,
             installed: false,

@@ -110,6 +110,7 @@ pub struct Exec<'a> {
     pub capture_stdout: bool,
     pub cwd: Option<&'a str>,
     pub user: Option<&'a str>,
+    pub env: &'a [String],
 }
 
 #[derive(Debug)]
@@ -156,12 +157,19 @@ impl Container {
     {
         let args = args.into_iter().collect::<Vec<_>>();
         let mut a = vec!["container".to_string(), "exec".to_string()];
+
         if let Some(cwd) = options.cwd {
             a.extend(["-w".to_string(), cwd.to_string()]);
         }
+
         if let Some(user) = options.user {
             a.extend(["-u".to_string(), user.to_string()]);
         }
+
+        for env in options.env {
+            a.extend(["-e".to_string(), env.to_string()]);
+        }
+
         a.extend(["--".to_string(), self.id.to_string()]);
         a.extend(args.iter().map(|x| x.as_ref().to_string()));
         let buf = podman(&a, options.capture_stdout)
