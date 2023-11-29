@@ -1,5 +1,7 @@
 use crate::errors::*;
 use serde::{Deserialize, Serialize};
+use std::path::Path;
+use tokio::fs;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Lockfile {
@@ -17,6 +19,16 @@ impl Lockfile {
     pub fn serialize(&self) -> Result<String> {
         let toml = toml::to_string_pretty(self)?;
         Ok(toml)
+    }
+
+    pub async fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let path = path.as_ref();
+        let buf = fs::read_to_string(&path)
+            .await
+            .with_context(|| anyhow!("Failed to read dependency lockfile: {path:?}"))?;
+        let lockfile = Self::deserialize(&buf)?;
+        trace!("Loaded dependency lockfile from file: {lockfile:?}");
+        Ok(lockfile)
     }
 }
 

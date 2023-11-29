@@ -1,9 +1,12 @@
 use crate::errors::*;
+use crate::lockfile::Lockfile;
+use crate::manifest::Manifest;
 use clap::{ArgAction, CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
 use std::collections::HashSet;
 use std::env;
 use std::io;
+use std::path::Path;
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
@@ -61,6 +64,19 @@ impl Build {
             }
         }
         Ok(())
+    }
+
+    pub async fn load_files(&self) -> Result<(Option<Manifest>, Lockfile)> {
+        let path = self.file.as_deref().unwrap_or(Path::new("repro-env.lock"));
+        let lockfile = Lockfile::read_from_file(path).await?;
+
+        let manifest = if self.file.is_none() {
+            Some(Manifest::read_from_file("repro-env.toml").await?)
+        } else {
+            None
+        };
+
+        Ok((manifest, lockfile))
     }
 }
 
