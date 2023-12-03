@@ -58,6 +58,20 @@ impl Package {
         self.single_value("%NAME%")
     }
 
+    pub fn version(&self) -> Result<&str> {
+        self.single_value("%VERSION%")
+    }
+
+    pub fn provides(&self, manifest: &PackagesManifest) -> Vec<String> {
+        self.values
+            .get("%PROVIDES%")
+            .into_iter()
+            .flatten()
+            .filter(|v| manifest.dependencies.contains(*v))
+            .map(String::from)
+            .collect()
+    }
+
     pub fn archive_url(&self) -> Result<String> {
         let filename = self.single_value("%FILENAME%")?;
         let pkgname = self.name()?;
@@ -121,6 +135,71 @@ impl DatabaseCache {
     }
 }
 
+pub async fn add_preinstalled_packages(
+    container: &Container,
+    manifest: &PackagesManifest,
+    dependencies: &mut Vec<PackageLock>,
+) -> Result<()> {
+    let tar = container.tar("/var/lib/pacman/local").await?;
+    let mut tar = tar::Archive::new(&tar[..]);
+    for entry in tar.entries()? {
+        let mut entry = entry?;
+
+        if entry.header().entry_type() != tar::EntryType::Regular {
+            continue;
+        }
+
+        let path = entry
+            .header()
+            .path()
+            .context("Filename was not valid utf-8")?;
+
+        let Some(name) = path.file_name() else {
+            continue;
+        };
+
+        trace!("Found path in exported local alpm database: {path:?} => {name:?}");
+
+        match name.to_str() {
+            Some("ALPM_DB_VERSION") => {
+                let mut buf = String::new();
+                entry.read_to_string(&mut buf)?;
+                let version = buf.lines().next();
+                match version {
+                    Some("9") => (),
+                    _ => {
+                        let version = version.unwrap_or("");
+                        bail!("This ALPM_DB_VERSION is unsupported: {version:?}");
+                    }
+                }
+            }
+            Some("desc") => {
+                let mut buf = String::new();
+                entry.read_to_string(&mut buf)?;
+                let pkg = Package::parse(&buf)?;
+                debug!("Found pre-installed package: {pkg:?}");
+
+                let name = pkg.name()?;
+                let version = pkg.version()?;
+
+                dependencies.push(PackageLock {
+                    name: name.to_string(),
+                    version: version.to_string(),
+                    system: "archlinux".to_string(),
+                    url: pkg.archive_url()?,
+                    provides: pkg.provides(manifest),
+                    sha256: pkg.sha256()?.to_string(),
+                    signature: Some(pkg.signature()?.to_string()),
+                    installed: true,
+                });
+            }
+            _ => (),
+        }
+    }
+
+    Ok(())
+}
+
 pub async fn resolve_dependencies(
     container: &Container,
     manifest: &PackagesManifest,
@@ -173,26 +252,19 @@ pub async fn resolve_dependencies(
         }
 
         let pkg = dbs.get_package(name)?;
-
-        // record provides if it mentions a dependency
-        let mut provides = Vec::new();
-        for value in pkg.values.get("%PROVIDES%").into_iter().flatten() {
-            if manifest.dependencies.contains(value) {
-                provides.push(value.to_string());
-            }
-        }
-
         dependencies.push(PackageLock {
             name: name.to_string(),
             version: version.to_string(),
             system: "archlinux".to_string(),
             url: pkg.archive_url()?,
-            provides,
+            provides: pkg.provides(manifest),
             sha256: pkg.sha256()?.to_string(),
             signature: Some(pkg.signature()?.to_string()),
             installed: false,
         });
     }
+
+    add_preinstalled_packages(container, manifest, dependencies).await?;
 
     Ok(())
 }
