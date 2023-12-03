@@ -23,6 +23,7 @@ pub struct Args {
 pub enum SubCommand {
     Build(Build),
     Update(Update),
+    Fetch(Fetch),
     Completions(Completions),
 }
 
@@ -72,6 +73,17 @@ pub struct Update {
     /// Do not delete the build container, wait for ctrl-c
     #[arg(short, long)]
     pub keep: bool,
+}
+
+/// Fetch dependencies into the local cache
+#[derive(Debug, Parser)]
+pub struct Fetch {
+    /// The dependency lockfile to use
+    #[arg(short, long)]
+    pub file: Option<PathBuf>,
+    /// Do not attempt to pull the container tag from registry
+    #[arg(long)]
+    pub no_pull: bool,
 }
 
 /// Generate shell completions
