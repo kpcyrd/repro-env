@@ -55,7 +55,13 @@ impl ToString for ImageRef {
     }
 }
 
-pub async fn podman<I, S>(args: I, capture_stdout: bool) -> Result<Vec<u8>>
+#[derive(Debug, Default)]
+pub struct ExecConfig {
+    pub capture_stdout: bool,
+    pub silence_stderr: bool,
+}
+
+pub async fn podman<I, S>(args: I, config: &ExecConfig) -> Result<Vec<u8>>
 where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr> + fmt::Debug,
@@ -63,8 +69,11 @@ where
     let mut cmd = Command::new("podman");
     let args = args.into_iter().collect::<Vec<_>>();
     cmd.args(&args);
-    if capture_stdout {
+    if config.capture_stdout {
         cmd.stdout(Stdio::piped());
+    }
+    if config.silence_stderr {
+        cmd.stderr(Stdio::null());
     }
     debug!("Spawning child process: podman {:?}", args);
     let child = cmd.spawn().context("Failed to execute podman binary")?;
@@ -82,7 +91,7 @@ where
 }
 
 pub async fn pull(image: &str) -> Result<()> {
-    podman(&["image", "pull", "--", image], false).await?;
+    podman(&["image", "pull", "--", image], &ExecConfig::default()).await?;
     Ok(())
 }
 
@@ -92,11 +101,29 @@ pub struct Image {
     pub digest: String,
 }
 
-pub async fn inspect(image: &str) -> Result<Vec<Image>> {
-    let inspect = podman(&["image", "inspect", "--", image], true).await?;
-    let inspect = serde_json::from_slice::<Vec<Image>>(&inspect)?;
-    debug!("Image inspect result: {inspect:?}");
-    Ok(inspect)
+pub async fn inspect(image: &str) -> Result<Image> {
+    let inspect = podman(
+        &["image", "inspect", "--", image],
+        &ExecConfig {
+            capture_stdout: true,
+            silence_stderr: true,
+        },
+    )
+    .await?;
+    let mut list = serde_json::from_slice::<Vec<Image>>(&inspect)?;
+    debug!("Image inspect result: {list:?}");
+
+    let inspect = list
+        .pop()
+        .with_context(|| anyhow!("Could not find any matching image: {image:?}"))?;
+
+    match list.len() {
+        0 => Ok(inspect),
+        len => bail!(
+            "The specified image is not canonical, inspect returned {}, expected 1",
+            len + 1
+        ),
+    }
 }
 
 #[derive(Debug)]
@@ -142,7 +169,14 @@ impl Container {
         podman_args.extend(["--".to_string(), image.to_string(), "-P".to_string()]);
 
         debug!("Creating container...");
-        let mut out = podman(&podman_args, true).await?;
+        let mut out = podman(
+            &podman_args,
+            &ExecConfig {
+                capture_stdout: true,
+                ..Default::default()
+            },
+        )
+        .await?;
         if let Some(idx) = memchr::memchr(b'\n', &out) {
             out.truncate(idx);
         }
@@ -172,9 +206,15 @@ impl Container {
 
         a.extend(["--".to_string(), self.id.to_string()]);
         a.extend(args.iter().map(|x| x.as_ref().to_string()));
-        let buf = podman(&a, options.capture_stdout)
-            .await
-            .with_context(|| anyhow!("Failed to execute in container: {:?}", args))?;
+        let buf = podman(
+            &a,
+            &ExecConfig {
+                capture_stdout: options.capture_stdout,
+                ..Default::default()
+            },
+        )
+        .await
+        .with_context(|| anyhow!("Failed to execute in container: {:?}", args))?;
         Ok(buf)
     }
 
@@ -186,9 +226,15 @@ impl Container {
             format!("{}:{}", self.id, path),
             "-".to_string(),
         ];
-        let buf = podman(&a, true)
-            .await
-            .with_context(|| anyhow!("Failed to read from container: {:?}", path))?;
+        let buf = podman(
+            &a,
+            &ExecConfig {
+                capture_stdout: true,
+                ..Default::default()
+            },
+        )
+        .await
+        .with_context(|| anyhow!("Failed to read from container: {:?}", path))?;
 
         let mut tar = tar::Archive::new(&buf[..]);
         let mut entries = tar.entries()?;
@@ -211,17 +257,29 @@ impl Container {
             format!("{}:{}", self.id, path),
             "-".to_string(),
         ];
-        let buf = podman(&a, true)
-            .await
-            .with_context(|| anyhow!("Failed to read from container: {:?}", path))?;
+        let buf = podman(
+            &a,
+            &ExecConfig {
+                capture_stdout: true,
+                ..Default::default()
+            },
+        )
+        .await
+        .with_context(|| anyhow!("Failed to read from container: {:?}", path))?;
 
         Ok(buf)
     }
 
     pub async fn kill(&self) -> Result<()> {
-        podman(&["container", "kill", &self.id], true)
-            .await
-            .context("Failed to remove container")?;
+        podman(
+            &["container", "kill", &self.id],
+            &ExecConfig {
+                capture_stdout: true,
+                ..Default::default()
+            },
+        )
+        .await
+        .context("Failed to remove container")?;
         Ok(())
     }
 

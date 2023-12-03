@@ -3,6 +3,7 @@ use env_logger::Env;
 use repro_env::args::{Args, SubCommand};
 use repro_env::build;
 use repro_env::errors::*;
+use repro_env::fetch;
 use repro_env::update;
 use std::env;
 use std::io;
@@ -27,6 +28,7 @@ async fn main() -> Result<()> {
     match args.subcommand {
         SubCommand::Build(build) => build::build(&build).await,
         SubCommand::Update(update) => update::update(&update).await,
+        SubCommand::Fetch(fetch) => fetch::fetch(&fetch).await,
         SubCommand::Completions(completions) => completions.generate(io::stdout()),
     }
 }

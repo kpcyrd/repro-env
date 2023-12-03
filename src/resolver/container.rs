@@ -11,14 +11,8 @@ pub async fn resolve(args: &args::Update, manifest: &Manifest) -> Result<Contain
     if !args.no_pull {
         container::pull(&image).await?;
     }
-    let images = container::inspect(&image).await?;
-    if images.len() != 1 {
-        bail!(
-            "The specified image is not canonical, inspect returned {}, expected 1",
-            images.len()
-        );
-    }
-    let digest = &images[0].digest;
+    let resolved = container::inspect(&image).await?;
+    let digest = &resolved.digest;
     let mut image_ref = image.parse::<ImageRef>()?;
     image_ref.tag = None;
     image_ref.digest = Some(digest.to_string());
