@@ -1,4 +1,5 @@
 use crate::errors::*;
+use std::env;
 use std::io::ErrorKind;
 use std::path::{Component, Path, PathBuf};
 use tokio::fs;
@@ -6,19 +7,31 @@ use tokio::fs;
 static SHARD_SIZE: usize = 2;
 
 pub fn repro_env_dir() -> Result<PathBuf> {
-    let mut cache = dirs::cache_dir().context("Failed to detect cache directory")?;
-    cache.push("repro-env");
-    Ok(cache)
+    if let Some(path) = env::var_os("REPRO_ENV_HOME") {
+        Ok(path.into())
+    } else {
+        let mut cache = dirs::cache_dir().context("Failed to detect cache directory")?;
+        cache.push("repro-env");
+        Ok(cache)
+    }
+}
+
+pub fn cache_dir() -> Result<PathBuf> {
+    if let Some(path) = env::var_os("REPRO_ENV_CACHE") {
+        Ok(path.into())
+    } else {
+        repro_env_dir()
+    }
 }
 
 pub fn pkgs_cache_dir() -> Result<PkgsCacheDir> {
-    let mut path = repro_env_dir()?;
+    let mut path = cache_dir()?;
     path.push("pkgs");
     Ok(PkgsCacheDir { path })
 }
 
 pub fn alpine_cache_dir() -> Result<PkgsCacheDir> {
-    let mut path = repro_env_dir()?;
+    let mut path = cache_dir()?;
     path.push("alpine");
     Ok(PkgsCacheDir { path })
 }
