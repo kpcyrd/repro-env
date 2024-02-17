@@ -3,11 +3,11 @@ image = "docker.io/library/archlinux@sha256:1f83ba0580a15cd6ad1d02d62ad432ddc940
 
 [[package]]
 name = "archlinux-keyring"
-version = "20231113-1"
+version = "20231130-1"
 system = "archlinux"
-url = "https://archive.archlinux.org/packages/a/archlinux-keyring/archlinux-keyring-20231113-1-any.pkg.tar.zst"
-sha256 = "3f0a96b6e52f6a5472d1553db19ea1a1a8a294982925d85676a5b999550ea2ff"
-signature = "iHUEABYIAB0WIQQEKYl95fO9rFN6MGltQr3RFuAGjwUCZVHqWQAKCRBtQr3RFuAGj1XdAQCbDtDyRsBJh8Qa0G2obUxLdcwvtnEJb1xJfnArR2OnhAEA/S5hfxs9ZYo4y5bsxxUzL7yNiPxAcwrMQbe+DbjJgQY="
+url = "https://archive.archlinux.org/packages/a/archlinux-keyring/archlinux-keyring-20231130-1-any.pkg.tar.zst"
+sha256 = "d154b4c53a8ff98eeb278ab99d7a0c9f571a5dbc26809475f1835b7549dbb3db"
+signature = "iHUEABYIAB0WIQQEKYl95fO9rFN6MGltQr3RFuAGjwUCZWhJwgAKCRBtQr3RFuAGjyKZAQCP6PkPxIA7KvV/roneOvpkc84mpf2BRzsbwF3QN0AfigD/cHymMb3qxfLpiKSD+hmxdhpln7Swn3BVxB4K+FLFEQk="
 
 [[package]]
 name = "bash"
@@ -58,12 +58,28 @@ sha256 = "5f5a42559de23b14cd44ff7108c5e39c1adfe2d37a7a83283ed6279c07f16981"
 signature = "iQEzBAABCAAdFiEEW34/txt/EDKaHAOrdx32Yn7faB8FAmVbVLsACgkQdx32Yn7faB/lzQf7BqfqObjgvutz7fcU6+vQqzNtzO+mpwuMkTymYi4iQOW+8ybu6peeCjq4olHaUH0VMwvgJa11tne3yvQSs1MDr6a1S0+wUVHu+jRw9Sau/PIh8WiA5Zi5KQRiNySbLmBAly0cwNMgd0E8/FGsR3nieL3yITCZ1o31prKeGcFEriEZ7Cck8VW704ifl+PnSvwFfnYjluNumWD2yKyTnKY3mDTeZXFUk8frsg8GJWzdbE40p+hw+s4Yby14J7sMgLNRzTm7gHlYwG+au2PPKzzlT+Xgoc2jK92Gy5KEcLiBqKufZ55BWwVpGN2vRcm8yEY3gvreBbfZ6GpRYSJn5v8oXQ=="
 
 [[package]]
+name = "gnupg"
+version = "2.4.3-2"
+system = "archlinux"
+url = "https://archive.archlinux.org/packages/g/gnupg/gnupg-2.4.3-2-x86_64.pkg.tar.zst"
+sha256 = "ce647c519900647e5d4319e7709b9cde38da89db228a5f8e05797491eb41a5e4"
+signature = "iHUEABYKAB0WIQRizHP4hOUpV7L92IObeih9mi7GCAUCZWZpgwAKCRCbeih9mi7GCCwsAP0SppEOWYhpVW2vrfG1fUVzeAjUIjmQKclwD61aGWAq8gD9ER4+H3zt4Wonx/wDFwHKyhJLc/yE3Lu7sSBxoaVhewY="
+
+[[package]]
 name = "gnutls"
 version = "3.8.2-1"
 system = "archlinux"
 url = "https://archive.archlinux.org/packages/g/gnutls/gnutls-3.8.2-1-x86_64.pkg.tar.zst"
 sha256 = "6a09965211bbea1d52948e80df3bb2bd43690aaa6aec480bf5c4afa7c018e671"
 signature = "iQEzBAABCgAdFiEErcih/MFeAdRTEEGelGV6sg8qCSsFAmVVKAEACgkQlGV6sg8qCStcbwgAgdkm0qrL+n+2BwoHubrE3OKRWQ+oVSmyvVLucmBXWaL9rVNcjzFt+5ItWktJ9rY6GWZB+3knv369woUR+CuwkHjn8y69cjzgCdmjsOMQlXjrNQstTmoZfx/yl4dRbDNoBByGQF15vCuWZWMo08ukzmVWbApvhv5pff6hiCBwMk+38HlOPuQpKWsQkqg0G2x3iFynMcNqS+zecaoUMAky3CX4sRhEJmEi/8IJWBuqaGVA58gzkZIUHqQXRnj12IxBcAzad5KGYkbxkAn6Y6W9JO/+NTkCrzrCxsZ+ijWjTbeGs94w2Dzq4NgxWdt+28vrLrGlNdi7ETRDW5sdAZUMEg=="
+
+[[package]]
+name = "gpgme"
+version = "1.23.2-1"
+system = "archlinux"
+url = "https://archive.archlinux.org/packages/g/gpgme/gpgme-1.23.2-1-x86_64.pkg.tar.zst"
+sha256 = "ecb2ff7fe76932cb0cdb137532edefca4da4fcb2d22f25c59e489a6a2e995159"
+signature = "iHUEABYIAB0WIQQEKYl95fO9rFN6MGltQr3RFuAGjwUCZWYXxQAKCRBtQr3RFuAGjwxNAQD1PXXjU6JgOK2XDIMR7GYZQbaPGmNOsMcafNLtnb1IZAD/bAcEKXCST7BXVaqpJcM++7GLNeYkqfLGndi3VLtFfAU="
 
 [[package]]
 name = "guile"

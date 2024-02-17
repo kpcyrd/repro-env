@@ -1,138 +1,15 @@
 use crate::args;
 use crate::container::{self, Container};
 use crate::errors::*;
-use crate::http;
+use crate::fetch;
 use crate::lockfile::{Lockfile, PackageLock};
 use crate::paths;
-use crate::pkgs;
 use data_encoding::BASE64;
-use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::env;
 use std::path::Path;
 use tempfile::TempDir;
 use tokio::fs;
-use tokio::io::{AsyncSeekExt, AsyncWriteExt};
-
-async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
-    let client = http::Client::new()?;
-    let pkgs_cache_dir = paths::pkgs_cache_dir()?;
-
-    for package in dependencies {
-        trace!("Found dependencies: {package:?}");
-        let path = pkgs_cache_dir.sha256_path(&package.sha256)?;
-        if path.exists() {
-            debug!(
-                "Package already in cache: {:?} {:?}",
-                package.name, package.version
-            );
-        } else {
-            let parent = path
-                .parent()
-                .context("Failed to determine parent directory")?;
-            fs::create_dir_all(parent).await.with_context(|| {
-                anyhow!("Failed to create parent directories for file: {path:?}")
-            })?;
-
-            let mut dl_path = path.clone();
-            dl_path.as_mut_os_string().push(".tmp");
-
-            let file = fs::OpenOptions::new()
-                .write(true)
-                .create(true)
-                .open(&dl_path)
-                .await?;
-
-            let mut lock = fd_lock::RwLock::new(file);
-            debug!("Trying to acquire write lock for file: {path:?}");
-            let mut lock = lock
-                .write()
-                .with_context(|| anyhow!("Failed to acquire lock for {dl_path:?}"))?;
-
-            // check if file became available in meantime
-            if path.exists() {
-                debug!("File became available in the meantime, nothing to do");
-            } else {
-                debug!(
-                    "Downloading package into cache: {:?} {:?}",
-                    package.name, package.version
-                );
-                lock.set_len(0).await.context("Failed to truncate file")?;
-                lock.rewind()
-                    .await
-                    .context("Failed to rewind file to beginning")?;
-
-                let mut response = client.request(&package.url).await.with_context(|| {
-                    anyhow!("Failed to download package from url: {:?}", package.url)
-                })?;
-
-                let mut hasher = Sha256::new();
-                while let Some(chunk) = response
-                    .chunk()
-                    .await
-                    .context("Failed to read from download stream")?
-                {
-                    lock.write_all(&chunk)
-                        .await
-                        .context("Failed to write to downloaded data to disk")?;
-                    hasher.update(&chunk);
-                }
-                let result = hex::encode(hasher.finalize());
-
-                if package.sha256 != result {
-                    lock.set_len(0)
-                        .await
-                        .context("Mismatch of sha256, failed to truncate file")?;
-                    bail!(
-                        "Mismatch of sha256, expected={:?}, downloaded={:?}",
-                        package.sha256,
-                        result
-                    );
-                }
-
-                lock.sync_all()
-                    .await
-                    .context("Failed to sync downloaded data to disk")?;
-                fs::rename(&dl_path, &path)
-                    .await
-                    .with_context(|| anyhow!("Failed to rename {dl_path:?} to {path:?}"))?;
-            }
-        }
-    }
-
-    Ok(())
-}
-
-pub fn verify_pin_metadata(pkg: &[u8], pin: &PackageLock) -> Result<()> {
-    let pkg = match pin.system.as_str() {
-        "alpine" => pkgs::alpine::parse(pkg).context("Failed to parse data as alpine package")?,
-        "archlinux" => {
-            pkgs::archlinux::parse(pkg).context("Failed to parse data as archlinux package")?
-        }
-        "debian" => pkgs::debian::parse(pkg).context("Failed to parse data as debian package")?,
-        system => bail!("Unknown package system: {system:?}"),
-    };
-
-    debug!("Parsed embedded metadata from package: {pkg:?}");
-
-    if pin.name != pkg.name {
-        bail!(
-            "Package name in metadata doesn't match lockfile: expected={:?}, embedded={:?}",
-            pin.name,
-            pkg.name
-        );
-    }
-
-    if pin.version != pkg.version {
-        bail!(
-            "Package version in metadata doesn't match lockfile: expected={:?}, embedded={:?}",
-            pin.version,
-            pkg.version
-        );
-    }
-
-    Ok(())
-}
 
 pub async fn setup_extra_folder(
     path: &Path,
@@ -192,7 +69,7 @@ pub async fn setup_extra_folder(
 
         // verify pkg content matches pin metadata
         let pkg = fs::read(&dest).await?;
-        verify_pin_metadata(&pkg, package)
+        fetch::verify_pin_metadata(&pkg, package)
             .with_context(|| anyhow!("Failed to verify metadata for {filename:?}"))?;
 
         install
@@ -305,7 +182,7 @@ pub async fn build(build: &args::Build) -> Result<()> {
         .collect::<Vec<_>>();
 
     let extra = if !dependencies.is_empty() {
-        download_dependencies(&dependencies).await?;
+        fetch::download_dependencies(&dependencies).await?;
 
         let path = paths::repro_env_dir()?;
         let temp_dir = tempfile::Builder::new().prefix("env.").tempdir_in(path)?;
