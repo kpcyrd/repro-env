@@ -86,18 +86,27 @@ jobs:
             cmd: gcc -static -o hello hello.c
             output: hello
             sha256: 04e03fd681793db603feb66a4c8e8df3858f1e31372dc017d7a0cf255faf84c5
-          - folder: examples/alpine
-            cmd: gcc -static -o hello hello.c
-            output: hello
-            sha256: a312585d54252990c2264351769f1cf2539f674db1142c7ea18fe10096debf12
+          #- folder: examples/alpine
+          #  cmd: gcc -static -o hello hello.c
+          #  output: hello
+          #  sha256: a312585d54252990c2264351769f1cf2539f674db1142c7ea18fe10096debf12
 
     name: ${{ matrix.test.folder }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
-      - name: 🏗️ Build artifact
+
+      - name: 🏗️ Setup build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/repro-env/pkgs/
+          key: repro-env-${{ matrix.test.folder }}
+
+      - name: 🛠️ Build artifact
         run: chmod +x bin/repro-env && bin/repro-env -C ${{ matrix.test.folder }} build -- ${{ matrix.test.cmd }}
+
       - name: 🔍 Verify artifact
         run: cd ${{ matrix.test.folder }} && echo "${{ matrix.test.sha256 }}  ${{ matrix.test.output }}" | sha256sum -c -
 

@@ -2,7 +2,7 @@ use crate::args;
 use crate::container::{self, Container};
 use crate::errors::*;
 use crate::fetch;
-use crate::lockfile::{Lockfile, PackageLock};
+use crate::lockfile::PackageLock;
 use crate::paths;
 use data_encoding::BASE64;
 use std::collections::HashMap;
@@ -157,13 +157,12 @@ pub async fn build(build: &args::Build) -> Result<()> {
     build.validate()?;
 
     // load lockfile
-    let path = build.file.as_deref().unwrap_or(Path::new("repro-env.lock"));
-    let buf = fs::read_to_string(path)
-        .await
-        .with_context(|| anyhow!("Failed to read dependency lockfile: {path:?}"))?;
-
-    let lockfile = Lockfile::deserialize(&buf)?;
-    trace!("Loaded dependency lockfile from file: {lockfile:?}");
+    let (manifest, lockfile) = build.load_files().await?;
+    if let Some(manifest) = &manifest {
+        if let Err(err) = manifest.satisfied_by(&lockfile) {
+            warn!("Lockfile might be out-of-sync: {err:#}");
+        }
+    }
 
     // mount current directory into container
     let pwd = env::current_dir()?;
