@@ -4,11 +4,16 @@ use crate::errors::*;
 use crate::fetch;
 use crate::lockfile::PackageLock;
 use crate::paths;
+use crate::pgp;
 use data_encoding::BASE64;
+use std::cmp;
 use std::collections::HashMap;
 use std::env;
 use std::path::Path;
+use std::time::{Duration, UNIX_EPOCH};
 use tempfile::TempDir;
+use time::format_description::well_known;
+use time::OffsetDateTime;
 use tokio::fs;
 
 pub async fn setup_extra_folder(
@@ -16,6 +21,8 @@ pub async fn setup_extra_folder(
     dependencies: &[PackageLock],
 ) -> Result<HashMap<String, Vec<String>>> {
     let pkgs_cache_dir = paths::pkgs_cache_dir()?;
+
+    let mut max_archlinux_sig = None;
 
     let mut install = HashMap::<_, Vec<_>>::new();
     for package in dependencies {
@@ -50,13 +57,28 @@ pub async fn setup_extra_folder(
         match package.system.as_str() {
             "alpine" => (),
             "archlinux" => {
-                let signature = package
+                let base64 = package
                     .signature
                     .as_ref()
                     .context("Package in dependency lockfile is missing signature")?;
                 let signature = BASE64
-                    .decode(signature.as_bytes())
-                    .context("Failed to decode signature as base64")?;
+                    .decode(base64.as_bytes())
+                    .with_context(|| anyhow!("Failed to decode signature as base64: {base64:?}"))?;
+
+                match pgp::parse_timestamp_from_sig(&signature) {
+                    Ok(Some(time)) => {
+                        max_archlinux_sig = if let Some(max) = max_archlinux_sig {
+                            Some(cmp::max(max, time))
+                        } else {
+                            Some(time)
+                        };
+                    }
+                    Ok(None) => (),
+                    Err(err) => {
+                        warn!("Failed to parse timestamp from signature {base64:?}: {err:#?}")
+                    }
+                }
+
                 debug!(
                     "Writing signature ({} bytes) to {dest_sig:?}...",
                     signature.len()
@@ -76,6 +98,18 @@ pub async fn setup_extra_folder(
             .entry(package.system.clone())
             .or_default()
             .push(filename.to_string());
+    }
+
+    if let Some(time) = max_archlinux_sig {
+        let time = time
+            .checked_add(Duration::from_secs(1))
+            .with_context(|| anyhow!("Failed to increase time by 1 second {time:?}"))?;
+        let datetime = OffsetDateTime::from(time).format(&well_known::Rfc3339)?;
+        info!("Derived signature verification timestamp: {datetime:?}");
+        let epoch = time
+            .duration_since(UNIX_EPOCH)
+            .with_context(|| anyhow!("Failed to derive unix epoch from time {time:?}"))?;
+        println!("faked-system-time {}", epoch.as_secs());
     }
 
     Ok(install)
