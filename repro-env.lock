@@ -51,11 +51,11 @@ signature = "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZb0dSl8UgAAAAAAuAChpc3N
 
 [[package]]
 name = "ca-certificates-mozilla"
-version = "3.97-1"
+version = "3.98-1"
 system = "archlinux"
-url = "https://archive.archlinux.org/packages/c/ca-certificates-mozilla/ca-certificates-mozilla-3.97-1-x86_64.pkg.tar.zst"
-sha256 = "b5c0abca7a9d43b862364ff1977ca36a03da01d7a2fe93d68f3ff34805454a44"
-signature = "iHUEABYKAB0WIQSDvIiJNRtd67toQW64rAhgDxCM3wUCZa/TgQAKCRC4rAhgDxCM3yS5AP4xzCKXUkq0zRut/9MEX8h/riIu0NZ6zPJzw3lDx68/pgEAkpz/zVz2vtNi4XP1Rh9ZM8J9Lnc/0MUXsnJVSf3Q7g0="
+url = "https://archive.archlinux.org/packages/c/ca-certificates-mozilla/ca-certificates-mozilla-3.98-1-x86_64.pkg.tar.zst"
+sha256 = "4937c3dc970b05df511db300476bb79efb191c0d021df577999e29f03d9edc59"
+signature = "iHUEABYKAB0WIQSDvIiJNRtd67toQW64rAhgDxCM3wUCZdDp7gAKCRC4rAhgDxCM3zvgAP9kYVYjvIRU0z1SnM5BoKyTSRb7/8nTEW2yiWScR+4/jAEA1m7gqrrFOSKT7DiavB1qkEidRjZMNgnNopAwAGeFdg4="
 
 [[package]]
 name = "coreutils"
@@ -250,6 +250,14 @@ sha256 = "71e8bbbacd8bd3d061793f1f8025a742002aefb4b262b3e934ab8727a72e64b5"
 signature = "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZb07FV8UgAAAAAAuAChpc3N1ZXItZnByQG5vdGF0aW9ucy5vcGVucGdwLmZpZnRoaG9yc2VtYW4ubmV0MDVDNzc3NUE5RThCOTc3NDA3RkUwOEU2OUQ0QzVBQTE1NDI2REEwQQAKCRCdTFqhVCbaCkSyAQDTHP/Xp76yHfbJ2K1BCM0KytI6vEnPx/5yrw2IvgILggEApETLAmjdu8hmhYeXI5ZWcBCCcjSwMTEUhsrLlGeqsQU="
 
 [[package]]
+name = "libffi"
+version = "3.4.6-1"
+system = "archlinux"
+url = "https://archive.archlinux.org/packages/l/libffi/libffi-3.4.6-1-x86_64.pkg.tar.zst"
+sha256 = "8b8404043b2f1e2f460071f3c64a5c6b86d0e1042b3ced1a4d808d114dc790e3"
+signature = "iHUEABYKAB0WIQRizHP4hOUpV7L92IObeih9mi7GCAUCZdIiEAAKCRCbeih9mi7GCN27AP9lx+UsDY1utguc0P/zd4CiFlyi75hNQAsQQO64IzYEOgEAv2eR63ni8Hn9+h+MZf1C5D+t/TWF1XJ5FrAVutW1XQY="
+
+[[package]]
 name = "libidn2"
 version = "2.3.7-1"
 system = "archlinux"
@@ -283,11 +291,11 @@ signature = "iHUEABYKAB0WIQQEKYl95fO9rFN6MGltQr3RFuAGjwUCZbn/GAAKCRBtQr3RFuAGj2f
 
 [[package]]
 name = "libnghttp3"
-version = "1.1.0-2"
+version = "1.2.0-1"
 system = "archlinux"
-url = "https://archive.archlinux.org/packages/l/libnghttp3/libnghttp3-1.1.0-2-x86_64.pkg.tar.zst"
-sha256 = "7e52c261d1fb806f42b130fa9586e8f782e18f8e941b276c292cc7bc49e653ba"
-signature = "iHUEABYKAB0WIQQEKYl95fO9rFN6MGltQr3RFuAGjwUCZb0DsAAKCRBtQr3RFuAGj257AP430IltCowLwj7ImMm5ZoxZR09hcve3Giq2De4uQ6bdzQD9EaPKMBveNQ1WYQdX9kL9HSFZXZfs8j7TNvVV3ADragE="
+url = "https://archive.archlinux.org/packages/l/libnghttp3/libnghttp3-1.2.0-1-x86_64.pkg.tar.zst"
+sha256 = "bc29e7da0df88d5f58256e373f42b1a531a7a70c4d366524e608760c79bc8043"
+signature = "iHUEABYKAB0WIQQEKYl95fO9rFN6MGltQr3RFuAGjwUCZdCcMgAKCRBtQr3RFuAGj3LiAQDk3hW9TEm6vNVBPa3SNiBqwQkIfmOwGGH8hvbiM7VkwgEA8ONPTgSeByKwnOwNFsQ6/JAUzH5n0c0ozOK3reqwCg0="
 
 [[package]]
 name = "libseccomp"
@@ -435,11 +443,11 @@ signature = "iHUEABYKAB0WIQSDvIiJNRtd67toQW64rAhgDxCM3wUCZcUcpQAKCRC4rAhgDxCM36Q
 
 [[package]]
 name = "shadow"
-version = "4.14.3-1"
+version = "4.14.5-1"
 system = "archlinux"
-url = "https://archive.archlinux.org/packages/s/shadow/shadow-4.14.3-1-x86_64.pkg.tar.zst"
-sha256 = "fdf221b4031a4b253fcb84ce8ac59cc1d8433c84e4db2022d3f54b43f098fcaf"
-signature = "iHUEABYKAB0WIQRizHP4hOUpV7L92IObeih9mi7GCAUCZaY53AAKCRCbeih9mi7GCL13AP9WX9zTDmO86wnUqqzTX92rEEkGkKkV02bw5rnGl2b6uAEAi34swUcKvU1oo0vwAbyc3kz67+63tcIEm8Z8bQwfhgw="
+url = "https://archive.archlinux.org/packages/s/shadow/shadow-4.14.5-1-x86_64.pkg.tar.zst"
+sha256 = "aca654ca2e47414839003f74432ad4f58565d25811d61abf3b02c6b89629b69a"
+signature = "iHUEABYKAB0WIQRizHP4hOUpV7L92IObeih9mi7GCAUCZdB7XAAKCRCbeih9mi7GCPk0AQCnaLgiH+FSrguyr/DwZ5tjbKrksfYFmqqYwzBirsSWsgD+NF4QYIA3hxYgKhHvL/GTj8P5rdyIfYG7edCEox6jcgM="
 
 [[package]]
 name = "sqlite"

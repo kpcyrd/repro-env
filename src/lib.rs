@@ -7,6 +7,7 @@ pub mod http;
 pub mod lockfile;
 pub mod manifest;
 pub mod paths;
+pub mod pgp;
 pub mod pkgs;
 pub mod resolver;
 #[cfg(test)]

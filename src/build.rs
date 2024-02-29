@@ -4,20 +4,41 @@ use crate::errors::*;
 use crate::fetch;
 use crate::lockfile::PackageLock;
 use crate::paths;
+use crate::pgp;
+use crate::pkgs::archlinux;
 use data_encoding::BASE64;
-use std::collections::HashMap;
 use std::env;
 use std::path::Path;
+use std::time::Duration;
 use tempfile::TempDir;
+use time::format_description::well_known;
+use time::OffsetDateTime;
 use tokio::fs;
 
-pub async fn setup_extra_folder(
-    path: &Path,
-    dependencies: &[PackageLock],
-) -> Result<HashMap<String, Vec<String>>> {
+#[derive(Debug, PartialEq, Default)]
+pub struct Install {
+    alpine: Vec<(PackageLock, String)>,
+    archlinux: Vec<(PackageLock, String)>,
+    debian: Vec<(PackageLock, String)>,
+}
+
+impl Install {
+    fn add_pkg(&mut self, pkg: PackageLock, filename: String) -> Result<()> {
+        let list = match pkg.system.as_str() {
+            "alpine" => &mut self.alpine,
+            "archlinux" => &mut self.archlinux,
+            "debian" => &mut self.debian,
+            system => bail!("Unknown package system: {system:?}"),
+        };
+        list.push((pkg, filename));
+        Ok(())
+    }
+}
+
+pub async fn setup_extra_folder(path: &Path, dependencies: Vec<PackageLock>) -> Result<Install> {
     let pkgs_cache_dir = paths::pkgs_cache_dir()?;
 
-    let mut install = HashMap::<_, Vec<_>>::new();
+    let mut install = Install::default();
     for package in dependencies {
         // determine filename
         let url = package
@@ -50,13 +71,14 @@ pub async fn setup_extra_folder(
         match package.system.as_str() {
             "alpine" => (),
             "archlinux" => {
-                let signature = package
+                let base64 = package
                     .signature
                     .as_ref()
                     .context("Package in dependency lockfile is missing signature")?;
                 let signature = BASE64
-                    .decode(signature.as_bytes())
-                    .context("Failed to decode signature as base64")?;
+                    .decode(base64.as_bytes())
+                    .with_context(|| anyhow!("Failed to decode signature as base64: {base64:?}"))?;
+
                 debug!(
                     "Writing signature ({} bytes) to {dest_sig:?}...",
                     signature.len()
@@ -69,13 +91,10 @@ pub async fn setup_extra_folder(
 
         // verify pkg content matches pin metadata
         let pkg = fs::read(&dest).await?;
-        fetch::verify_pin_metadata(&pkg, package)
+        fetch::verify_pin_metadata(&pkg, &package)
             .with_context(|| anyhow!("Failed to verify metadata for {filename:?}"))?;
 
-        install
-            .entry(package.system.clone())
-            .or_default()
-            .push(filename.to_string());
+        install.add_pkg(package, filename.to_string())?;
     }
 
     Ok(install)
@@ -84,54 +103,64 @@ pub async fn setup_extra_folder(
 pub async fn run_build(
     container: &Container,
     build: &args::Build,
-    extra: Option<&(TempDir, HashMap<String, Vec<String>>)>,
+    extra: Option<&(TempDir, Install)>,
 ) -> Result<()> {
-    if let Some((_, pkgs)) = extra {
-        for (system, pkgs) in pkgs {
-            match system.as_str() {
-                "alpine" => {
-                    let mut cmd = vec![
-                        "apk".to_string(),
-                        "add".to_string(),
-                        "--no-network".to_string(),
-                        "--".to_string(),
-                    ];
-                    for pkg in pkgs {
-                        cmd.push(format!("/extra/{pkg}"));
-                    }
-
-                    info!("Installing dependencies...");
-                    container.exec(&cmd, container::Exec::default()).await?;
-                }
-                "archlinux" => {
-                    let mut cmd = vec![
-                        "pacman".to_string(),
-                        "-U".to_string(),
-                        "--noconfirm".to_string(),
-                        "--".to_string(),
-                    ];
-                    for pkg in pkgs {
-                        cmd.push(format!("/extra/{pkg}"));
-                    }
-
-                    info!("Installing dependencies...");
-                    container.exec(&cmd, container::Exec::default()).await?;
-                }
-                "debian" => {
-                    let mut cmd = vec![
-                        "apt-get".to_string(),
-                        "install".to_string(),
-                        "--".to_string(),
-                    ];
-                    for pkg in pkgs {
-                        cmd.push(format!("/extra/{pkg}"));
-                    }
-
-                    info!("Installing dependencies...");
-                    container.exec(&cmd, container::Exec::default()).await?;
-                }
-                system => bail!("Unknown package system: {system:?}"),
+    if let Some((_, install)) = extra {
+        if !install.alpine.is_empty() {
+            let mut cmd = vec![
+                "apk".to_string(),
+                "add".to_string(),
+                "--no-network".to_string(),
+                "--".to_string(),
+            ];
+            for (_, filename) in &install.alpine {
+                cmd.push(format!("/extra/{filename}"));
             }
+
+            info!("Installing dependencies...");
+            container.exec(&cmd, container::Exec::default()).await?;
+        }
+
+        if !install.archlinux.is_empty() {
+            // determine verification timestamp and add it to gpg.conf
+            let filename_iter = install.archlinux.iter().map(|(pkg, _)| pkg);
+            if let Some(time) = pgp::find_max_signature_time(filename_iter)? {
+                let time = time
+                    .checked_add(Duration::from_secs(1))
+                    .with_context(|| anyhow!("Failed to increase time by 1 second {time:?}"))?;
+                let datetime = OffsetDateTime::from(time).format(&well_known::Rfc3339)?;
+
+                info!("Derived signature verification timestamp: {datetime:?}");
+                archlinux::set_pacman_verification_datetime(container, time).await?;
+            }
+
+            // prepare and execute the install command
+            let mut cmd = vec![
+                "pacman".to_string(),
+                "-U".to_string(),
+                "--noconfirm".to_string(),
+                "--".to_string(),
+            ];
+            for (_, filename) in &install.archlinux {
+                cmd.push(format!("/extra/{filename}"));
+            }
+
+            info!("Installing dependencies...");
+            container.exec(&cmd, container::Exec::default()).await?;
+        }
+
+        if !install.debian.is_empty() {
+            let mut cmd = vec![
+                "apt-get".to_string(),
+                "install".to_string(),
+                "--".to_string(),
+            ];
+            for (_, filename) in &install.debian {
+                cmd.push(format!("/extra/{filename}"));
+            }
+
+            info!("Installing dependencies...");
+            container.exec(&cmd, container::Exec::default()).await?;
         }
     }
 
@@ -185,7 +214,7 @@ pub async fn build(build: &args::Build) -> Result<()> {
 
         let path = paths::repro_env_dir()?;
         let temp_dir = tempfile::Builder::new().prefix("env.").tempdir_in(path)?;
-        let pkgs = setup_extra_folder(temp_dir.path(), &dependencies).await?;
+        let pkgs = setup_extra_folder(temp_dir.path(), dependencies).await?;
 
         let path = temp_dir
             .path()
