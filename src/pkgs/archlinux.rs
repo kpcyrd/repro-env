@@ -1,7 +1,14 @@
+use crate::container::Container;
 use crate::errors::*;
 use crate::pkgs::Pkg;
 use peekread::{BufPeekReader, PeekRead};
+use std::fmt::Write;
 use std::io::{BufRead, BufReader, Read};
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
+
+pub const GPG_CONF_DIR: &str = "/etc/pacman.d/gnupg/";
+pub const GPG_CONF_FILENAME: &str = "gpg.conf";
 
 pub enum Compression {
     Xz,
@@ -73,6 +80,38 @@ pub fn parse<R: Read>(reader: R) -> Result<Pkg> {
         }
         Compression::None => parse_tar(reader),
     }
+}
+
+pub async fn set_pacman_verification_datetime(
+    container: &Container,
+    time: SystemTime,
+) -> Result<()> {
+    let path = format!("{GPG_CONF_DIR}{GPG_CONF_FILENAME}");
+    let gpg_conf = container.cat(&path).await?;
+    let mut gpg_conf = String::from_utf8(gpg_conf).context("Failed to parse gpg.conf as utf-8")?;
+    if !gpg_conf.ends_with('\n') {
+        gpg_conf.push('\n');
+    }
+
+    // check if a faked-system-time is already configured
+    if let Some(line) = gpg_conf
+        .lines()
+        .find(|line| line.starts_with("faked-system-time"))
+    {
+        warn!("Container already defines a verification datetime: {line:?}");
+        return Ok(());
+    }
+
+    let epoch = time
+        .duration_since(UNIX_EPOCH)
+        .with_context(|| anyhow!("Failed to derive unix epoch from time {time:?}"))?;
+    writeln!(gpg_conf, "faked-system-time {}", epoch.as_secs())?;
+
+    container
+        .write_file(GPG_CONF_DIR, GPG_CONF_FILENAME, gpg_conf.as_bytes())
+        .await?;
+
+    Ok(())
 }
 
 #[cfg(test)]
