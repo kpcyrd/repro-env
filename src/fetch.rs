@@ -36,6 +36,7 @@ pub async fn download_dependencies(dependencies: &[PackageLock]) -> Result<()> {
             let file = fs::OpenOptions::new()
                 .write(true)
                 .create(true)
+                .truncate(false)
                 .open(&dl_path)
                 .await?;
 
