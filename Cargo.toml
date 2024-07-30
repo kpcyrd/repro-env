@@ -28,10 +28,10 @@ log = "0.4.19"
 lz4_flex = "0.11.1"
 lzma-rs = "0.3.0"
 memchr = "2.5.0"
-nix = { version = "0.28", default-features = false, features = ["sched"] }
+nix = { version = "0.29", default-features = false, features = ["sched"] }
 peekread = "0.1.1"
 reqwest = { version = "0.12", features = ["rustls-tls-native-roots", "socks", "stream"], default-features = false }
-ruzstd = "0.6"
+ruzstd = "0.7"
 # only the cert parser is used, but sequoia-openpgp doesn't allow building with no backend
 sequoia-openpgp = { version = "1.18", default-features = false, features = ["crypto-rust", "allow-experimental-crypto", "allow-variable-time-crypto"] }
 serde = { version = "1", features = ["derive"] }
