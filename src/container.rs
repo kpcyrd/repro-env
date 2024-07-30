@@ -43,15 +43,15 @@ impl FromStr for ImageRef {
     }
 }
 
-impl ToString for ImageRef {
-    fn to_string(&self) -> String {
+impl fmt::Display for ImageRef {
+    fn fmt(&self, w: &mut fmt::Formatter) -> fmt::Result {
         let repo = &self.repo;
         if let Some(digest) = &self.digest {
-            format!("{repo}@{digest}")
+            write!(w, "{repo}@{digest}")
         } else if let Some(tag) = &self.tag {
-            format!("{repo}:{tag}")
+            write!(w, "{repo}:{tag}")
         } else {
-            repo.to_string()
+            write!(w, "{repo}")
         }
     }
 }
