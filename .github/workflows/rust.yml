@@ -12,14 +12,13 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build-bootstrapped:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: 🏗️ Setup build cache
-      uses: actions/cache@v3
-      continue-on-error: false
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/bin/
@@ -28,8 +27,8 @@ jobs:
           ~/.cargo/git/db/
           ~/.cache/repro-env/pkgs/
           target/
-        key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: ${{ runner.os }}-cargo-release-
+        key: ${{ runner.os }}-cargo-release-bootstrapped-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-release-bootstrapped-
 
     - name: 🛠️ Build
       run: make
@@ -38,7 +37,7 @@ jobs:
       run: sha256sum target/x86_64-unknown-linux-musl/release/repro-env
 
     - name: 📦 Upload binary
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: bin
         path: target/x86_64-unknown-linux-musl/release/repro-env
@@ -46,11 +45,10 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up cargo cache
-      uses: actions/cache@v3
-      continue-on-error: false
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/bin/
@@ -64,8 +62,35 @@ jobs:
     - name: Build
       run: cargo build --release --verbose
 
+  build-ubuntu:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: sudo apt-get install -y repro-env
+
+    - name: 🏗️ Setup build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          ~/.cache/repro-env/pkgs/
+          target/
+        key: ${{ runner.os }}-cargo-release-ubuntu-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-release-ubuntu-
+
+    - name: 🛠️ Build
+      run: repro-env build -- make build2
+
+    - name: 🔍 SHA256
+      run: sha256sum target/x86_64-unknown-linux-musl/release/repro-env
+
   integration-test:
-    needs: build
+    needs: build-bootstrapped
     strategy:
       fail-fast: false
       matrix:
@@ -94,8 +119,8 @@ jobs:
     name: ${{ matrix.test.folder }}
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
 
       - name: 🏗️ Setup build cache
         uses: actions/cache@v4
@@ -113,11 +138,10 @@ jobs:
   unit-test:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up cargo cache
-      uses: actions/cache@v3
-      continue-on-error: false
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/bin/
@@ -136,7 +160,7 @@ jobs:
   deny:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Run cargo deny
       run: |
         docker run --rm -v "$PWD:/src" -w /src alpine:edge sh -c '
@@ -149,14 +173,14 @@ jobs:
   fmt:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Run cargo fmt
       run: cargo fmt --all -- --check
 
   docs:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: sudo apt-get install scdoc
     - name: Build
