@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
 
@@ -92,7 +92,7 @@ jobs:
           #  sha256: a312585d54252990c2264351769f1cf2539f674db1142c7ea18fe10096debf12
 
     name: ${{ matrix.test.folder }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -111,7 +111,7 @@ jobs:
         run: cd ${{ matrix.test.folder }} && echo "${{ matrix.test.sha256 }}  ${{ matrix.test.output }}" | sha256sum -c -
 
   unit-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
 
@@ -133,15 +133,28 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
 
+  deny:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run cargo deny
+      run: |
+        docker run --rm -v "$PWD:/src" -w /src alpine:edge sh -c '
+        set -e
+        apk add cargo-deny --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing/ || apk add cargo-deny --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community/ || apk add cargo-deny
+        apk add cargo
+        exec cargo deny check
+        '
+
   fmt:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
     - name: Run cargo fmt
       run: cargo fmt --all -- --check
 
   docs:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
     - name: Install dependencies
