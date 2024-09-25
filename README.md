@@ -70,10 +70,12 @@ With github actions (>= Ubuntu 24.04):
   run: sudo apt-get install -y repro-env
 ```
 
+## Integrations
+
 | Package integration                    | Status | Archive infrastructure |
 | -------------------------------------- | ------ | ---------------------- |
 | [Arch Linux](#packages-arch-linux)     | ✅ Fully supported, no known issues | ✅ Superb, operated by Arch Linux |
-| [Debian](#packages-debian)             | ✅ No known issues | ⚠️ Snapshot service is frequently slow or unavailable |
+| [Debian](#packages-debian)             | ✅ No known issues | ✅ Superb, operated by Debian |
 | [Alpine Linux](#packages-alpine-linux) | ✅ No known issues | ❌ No public archive, links are likely to become 404 |
 
 ## Packages: Arch Linux
