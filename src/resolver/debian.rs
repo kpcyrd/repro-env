@@ -202,7 +202,7 @@ pub async fn resolve_dependencies(
             },
         )
         .await?;
-    let buf = String::from_utf8(buf).context("Failed to decode pacman output as utf8")?;
+    let buf = String::from_utf8(buf).context("Failed to decode apt output as utf8")?;
 
     let client = http::Client::new()?;
     let pkgs_cache_dir = paths::pkgs_cache_dir()?;
