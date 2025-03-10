@@ -23,7 +23,7 @@ clap = { version = "4", features = ["derive"] }
 clap_complete = "4"
 clone-file = "0.1.0"
 data-encoding = "2.4.0"
-dirs = "5.0.1"
+dirs = "6"
 env_logger = "0.11"
 fd-lock = "4.0.0"
 flate2 = "1.0.26"
@@ -36,7 +36,7 @@ memchr = "2.5.0"
 nix = { version = "0.29", default-features = false, features = ["sched"] }
 peekread = "0.1.1"
 reqwest = { version = "0.12", features = ["rustls-tls-native-roots", "socks", "stream"], default-features = false }
-ruzstd = "0.7"
+ruzstd = "0.8"
 # only the cert parser is used, but sequoia-openpgp doesn't allow building with no backend
 sequoia-openpgp = { version = "1.18", default-features = false, features = ["crypto-rust", "allow-experimental-crypto", "allow-variable-time-crypto"] }
 serde = { version = "1", features = ["derive"] }
