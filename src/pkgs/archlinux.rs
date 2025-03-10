@@ -2,6 +2,7 @@ use crate::container::Container;
 use crate::errors::*;
 use crate::pkgs::Pkg;
 use peekread::{BufPeekReader, PeekRead};
+use ruzstd::decoding::StreamingDecoder;
 use std::fmt::Write;
 use std::io::{BufRead, BufReader, Read};
 use std::time::SystemTime;
@@ -75,7 +76,7 @@ pub fn parse<R: Read>(reader: R) -> Result<Pkg> {
             parse_tar(&buf[..])
         }
         Compression::Zstd => {
-            let decoder = ruzstd::StreamingDecoder::new(reader)?;
+            let decoder = StreamingDecoder::new(reader)?;
             parse_tar(decoder)
         }
         Compression::None => parse_tar(reader),
