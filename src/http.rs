@@ -1,6 +1,9 @@
 use crate::errors::*;
+use std::time::Duration;
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
+pub const CONNECT_TIMEOUT: Duration = Duration::from_secs(15);
+pub const READ_TIMEOUT: Duration = Duration::from_secs(240);
 
 pub struct Client {
     http: reqwest::Client,
@@ -10,6 +13,8 @@ impl Client {
     pub fn new() -> Result<Self> {
         let http = reqwest::Client::builder()
             .user_agent(APP_USER_AGENT)
+            .connect_timeout(CONNECT_TIMEOUT)
+            .read_timeout(READ_TIMEOUT)
             .build()?;
         Ok(Client { http })
     }
