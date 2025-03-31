@@ -38,7 +38,7 @@ peekread = "0.1.1"
 reqwest = { version = "0.12", features = ["rustls-tls-native-roots", "socks", "stream"], default-features = false }
 ruzstd = "0.8"
 # only the cert parser is used, but sequoia-openpgp doesn't allow building with no backend
-sequoia-openpgp = { version = "1.18", default-features = false, features = ["crypto-rust", "allow-experimental-crypto", "allow-variable-time-crypto"] }
+sequoia-openpgp = { version = "2", default-features = false, features = ["crypto-rust", "allow-experimental-crypto", "allow-variable-time-crypto"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha1 = "0.10.5"
