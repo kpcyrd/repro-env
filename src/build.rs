@@ -48,7 +48,7 @@ pub async fn setup_extra_folder(path: &Path, dependencies: Vec<PackageLock>) -> 
         let filename = url
             .path_segments()
             .context("Failed to get path from url")?
-            .last()
+            .next_back()
             .context("Failed to find filename from url")?;
         if filename.is_empty() {
             bail!("Filename from url is empty");
