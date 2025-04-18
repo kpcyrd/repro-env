@@ -154,7 +154,7 @@ impl PkgDatabase {
             let filename = url
                 .path_segments()
                 .context("Failed to get path from url")?
-                .last()
+                .next_back()
                 .context("Failed to get filename from url")?;
             let filename =
                 urlencoding::decode(filename).context("Failed to url decode filename")?;
