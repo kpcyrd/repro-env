@@ -310,6 +310,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cbc"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26b52a9543ae338f279b96b0b9fed9c8093744685043739079ce85cd58f289a6"
+dependencies = [
+ "cipher",
+]
+
+[[package]]
 name = "cc"
 version = "1.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2431,9 +2440,9 @@ checksum = "56e6fa9c48d24d85fb3de5ad847117517440f6beceb7798af16b4a87d616b8d0"
 
 [[package]]
 name = "sequoia-openpgp"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "015e5fc3d023418b9db98ca9a7f3e90b305872eeafe5ca45c5c32b5eb335c1e8"
+checksum = "f0e334ce3ec5b9b47d86a80563b3ecec435f59acf37e86058b3b686a42c5a2ba"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -2445,6 +2454,7 @@ dependencies = [
  "buffered-reader",
  "camellia",
  "cast5",
+ "cbc",
  "cfb-mode",
  "chrono",
  "cipher",
