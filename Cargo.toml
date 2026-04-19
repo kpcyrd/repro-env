@@ -30,7 +30,7 @@ flate2 = "1.0.26"
 hex = "0.4.3"
 indexmap = { version = "2.1.0", features = ["serde"] }
 log = "0.4.19"
-lz4_flex = "0.11.1"
+lz4_flex = "0.13"
 lzma-rs = "0.3.0"
 memchr = "2.5.0"
 nix = { version = "0.29", default-features = false, features = ["sched"] }
