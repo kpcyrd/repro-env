@@ -10,6 +10,14 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use tokio::signal;
 
+// replace this with .unwrap_or after it became const
+// https://github.com/rust-lang/rust/issues/67792
+const PODMAN_BINARY: &str = if let Some(path) = option_env!("REPRO_ENV_PODMAN_BINARY") {
+    path
+} else {
+    "podman"
+};
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct ImageRef {
     pub repo: String,
@@ -68,7 +76,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr> + fmt::Debug,
 {
-    let mut cmd = Command::new("podman");
+    let mut cmd = Command::new(PODMAN_BINARY);
     let args = args.into_iter().collect::<Vec<_>>();
     cmd.args(&args);
     if config.stdin.is_some() {
