@@ -30,22 +30,22 @@ flate2 = "1.0.26"
 hex = "0.4.3"
 indexmap = { version = "2.1.0", features = ["serde"] }
 log = "0.4.19"
-lz4_flex = "0.11.1"
+lz4_flex = "0.13"
 lzma-rs = "0.3.0"
 memchr = "2.5.0"
-nix = { version = "0.29", default-features = false, features = ["sched"] }
+nix = { version = "0.31", default-features = false, features = ["sched"] }
 peekread = "0.1.1"
-reqwest = { version = "0.12", features = ["rustls-tls-native-roots", "socks", "stream"], default-features = false }
+reqwest = { version = "0.13", features = ["rustls", "socks", "stream"], default-features = false }
 ruzstd = "0.8"
 # only the cert parser is used, but sequoia-openpgp doesn't allow building with no backend
 sequoia-openpgp = { version = "2", default-features = false, features = ["crypto-rust", "allow-experimental-crypto", "allow-variable-time-crypto"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-sha1 = "0.10.5"
-sha2 = "0.10.7"
+sha1 = "0.11"
+sha2 = "0.11"
 tar = "0.4.45"
 tempfile = "3.6.0"
 time = { version = "0.3", features = ["formatting"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs", "process", "signal"] }
-toml = "0.9"
+toml = "1"
 urlencoding = "2.1.2"

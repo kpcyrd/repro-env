@@ -31,6 +31,7 @@
           nativeBuildInputs = with pkgs; [ pkgsStatic.stdenv.cc ];
           CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl";
           CARGO_BUILD_RUSTFLAGS = "-C target-feature=+crt-static -C strip=symbols";
+          CC_x86_64-unknown-linux-musl = "${pkgs.musl.dev}/bin/musl-gcc";
         };
       }
     );
