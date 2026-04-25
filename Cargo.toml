@@ -1,6 +1,6 @@
 [package]
 name = "repro-env"
-version = "0.4.3"
+version = "0.4.4"
 description = "Dependency lockfiles for reproducible build environments 📦🔒"
 authors = ["kpcyrd <git@rxv.cc>"]
 license = "MIT OR Apache-2.0"
