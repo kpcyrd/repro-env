@@ -78,6 +78,21 @@ With github actions (>= Ubuntu 24.04):
 | [Debian](#packages-debian)             | ✅ No known issues | ✅ Superb, operated by Debian |
 | [Alpine Linux](#packages-alpine-linux) | ✅ No known issues | ❌ No public archive, links are likely to become 404 |
 
+## Adoption
+
+The following projects use repro-env to publish independently verifiable release binaries:
+
+- [apt.vulns.xyz](https://github.com/kpcyrd/apt-vulns-xyz)
+- [archlinux-userland-fs-cmp](https://github.com/kpcyrd/archlinux-userland-fs-cmp)
+- [ic-gateway](https://github.com/dfinity/ic-gateway)
+- [ic-http-lb](https://github.com/dfinity/ic-http-lb)
+- [repro-env](https://github.com/kpcyrd/repro-env)
+- [rshijack](https://github.com/kpcyrd/rshijack)
+- [sh4d0wup](https://github.com/kpcyrd/sh4d0wup)
+- [spytrap-adb](https://github.com/spytrap-org/spytrap-adb)
+
+Feel free to add your own! (please keep the list sorted 😺)
+
 ## Packages: Arch Linux
 
 Arch Linux hosts a comprehensive collection of recent compilers at https://archive.archlinux.org. You can create a `[packages]` section in your **repro-env.toml** with `system = "archlinux"` to install additional packages with pacman.
