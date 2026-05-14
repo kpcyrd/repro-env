@@ -51,7 +51,7 @@ The final executable is available at this location:
 
 - [repro-env x86_64 statically linked](https://github.com/kpcyrd/repro-env/releases/download/v0.4.3/repro-env) (sha256: `2a00b21ac5e990e0c6a0ccbf3b91e34a073660d1f4553b5f3cda2b09cc4d4d8a`)
 
-[![](https://repology.org/badge/vertical-allrepos/repro-env.svg)](https://repology.org/project/repro-env/versions)
+[![](https://repology.org/badge/vertical-allrepos/repro-env.svg?column=3)](https://repology.org/project/repro-env/versions)
 
 With github actions:
 
