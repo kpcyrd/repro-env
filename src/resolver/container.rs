@@ -21,5 +21,6 @@ pub async fn resolve(args: &args::Update, manifest: &Manifest) -> Result<Contain
 
     Ok(ContainerLock {
         image: pinned_image,
+        bootstrap_cmd: None,
     })
 }
