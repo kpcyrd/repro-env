@@ -82,6 +82,7 @@ With github actions (>= Ubuntu 24.04):
 
 The following projects use repro-env to publish independently verifiable release binaries:
 
+- [acme-redirect](https://github.com/kpcyrd/acme-redirect)
 - [apt.vulns.xyz](https://github.com/kpcyrd/apt-vulns-xyz)
 - [archlinux-userland-fs-cmp](https://github.com/kpcyrd/archlinux-userland-fs-cmp)
 - [ic-gateway](https://github.com/dfinity/ic-gateway)
