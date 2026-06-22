@@ -165,8 +165,7 @@ jobs:
       run: |
         docker run --rm -v "$PWD:/src" -w /src alpine:edge sh -c '
         set -e
-        apk add cargo-deny --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing/ || apk add cargo-deny --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community/ || apk add cargo-deny
-        apk add cargo
+        apk add cargo cargo-deny git
         exec cargo deny check
         '
 
