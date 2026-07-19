@@ -78,6 +78,21 @@ system = "debian"
 dependencies = ["gcc", "libc6-dev"]
 ```
 
+# BOOTSTRAP COMMAND
+
+You can declare bootstrap command(s) to run right after the container creation (before dependencies are installed and the build command is executed) with *bootstrap_cmd = [["command", "arg"]]* in the *[container]* section of your *repro-env.toml*. You can pass multiple commands and arguments with *bootstrap_cmd = [["command1", "arg1", "arg2"], ["command2", "arg1", "arg2", "arg3"]]*.
+
+```
+# repro-env.toml
+[container]
+image = "docker.io/archlinux/archlinux:repro"
+bootstrap_cmd = [["pacman-key", "--init"], ["pacman-key", "--populate", "archlinux"]]
+
+[packages]
+system = "archlinux"
+dependencies = ["cargo", "musl", "rust-musl"]
+```
+
 # AUTHORS
 
 repro-env is developed on github at https://github.com/kpcyrd/repro-env

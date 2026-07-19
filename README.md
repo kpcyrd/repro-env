@@ -214,6 +214,21 @@ sha256 = "abccb59dd5b9e64b782bbfd97b08c79a2214cc53567fb334aa003815505a007f"
 # [...]
 ```
 
+## BOOTSTRAP COMMAND
+
+You can declare bootstrap command(s) to run right after the container creation (before dependencies are installed and the build command is executed) with `bootstrap_cmd = [["command", "arg"]]` in the `[container]` section of your **repro-env.toml**. You can pass multiple commands and arguments with `bootstrap_cmd = [["command1", "arg1", "arg2"], ["command2", "arg1", "arg2", "arg3"]]`.
+
+```
+# repro-env.toml
+[container]
+image = "docker.io/archlinux/archlinux:repro"
+bootstrap_cmd = [["pacman-key", "--init"], ["pacman-key", "--populate", "archlinux"]]
+
+[packages]
+system = "archlinux"
+dependencies = ["cargo", "musl", "rust-musl"]
+```
+
 ## Bootstrapping
 
 There are no inherent bootstrapping challenges, you can use any recent Rust compiler to build a working **repro-env** binary. This binary can then setup any other build environment (including it's own) and is able to build a bit-for-bit identical copy of the official release binaries hosted on github.
