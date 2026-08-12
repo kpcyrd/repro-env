@@ -35,6 +35,7 @@ impl Lockfile {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContainerLock {
     pub image: String,
+    pub bootstrap_cmd: Option<Vec<Vec<String>>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -70,6 +71,7 @@ mod tests {
                 image:
                     "docker.io/library/archlinux@sha256:6568d3f1f278827a4a7d8537f80c2ae36982829a0c6bccff4cec081774025472"
                         .to_string(),
+                bootstrap_cmd: None,
             },
             packages: vec![
                 PackageLock {
@@ -135,6 +137,7 @@ signature = "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCZG6Rg18UgAAAAAAuAChpc3N
                 image:
                     "debian@sha256:3d868b5eb908155f3784317b3dda2941df87bbbbaa4608f84881de66d9bb297b"
                         .to_string(),
+                bootstrap_cmd: None,
             },
             packages: vec![
                 PackageLock {

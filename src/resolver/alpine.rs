@@ -374,6 +374,7 @@ pub async fn resolve(
         container::Config {
             mounts: &[],
             expose_fuse: false,
+            bootstrap_cmd: None,
         },
     )
     .await?;
