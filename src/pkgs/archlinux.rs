@@ -8,6 +8,13 @@ use std::io::{BufRead, BufReader, Read};
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
+// The default ruzstd value is 100MiB, which is smaller than libzstd's 128MiB default.
+//
+// See the following resources:
+// https://github.com/facebook/zstd/wiki/Using-libzstd-in-a-memory-constrained-environment#zstd_d_maxwindowlog
+// https://github.com/KillingSpark/zstd-rs/pull/119
+const LIBZSTD_MAX_WINDOW_SIZE: u64 = 1024 * 1024 * 128;
+
 pub const GPG_CONF_DIR: &str = "/etc/pacman.d/gnupg/";
 pub const GPG_CONF_FILENAME: &str = "gpg.conf";
 
@@ -76,7 +83,8 @@ pub fn parse<R: Read>(reader: R) -> Result<Pkg> {
             parse_tar(&buf[..])
         }
         Compression::Zstd => {
-            let decoder = StreamingDecoder::new(reader)?;
+            let decoder =
+                StreamingDecoder::new_with_max_window_size(reader, LIBZSTD_MAX_WINDOW_SIZE)?;
             parse_tar(decoder)
         }
         Compression::None => parse_tar(reader),
