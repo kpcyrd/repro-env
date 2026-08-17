@@ -49,7 +49,7 @@ The final executable is available at this location:
 
 ## Download
 
-- [repro-env x86_64 statically linked](https://github.com/kpcyrd/repro-env/releases/download/v0.4.3/repro-env) (sha256: `2a00b21ac5e990e0c6a0ccbf3b91e34a073660d1f4553b5f3cda2b09cc4d4d8a`)
+- [repro-env x86_64 statically linked](https://github.com/kpcyrd/repro-env/releases/download/v0.4.5/repro-env) (sha256: `d6a52bc7cfce4ff2e20dcdd01daf83968429f03f225178ef7f687f286a0d0ab4`)
 
 [![](https://repology.org/badge/vertical-allrepos/repro-env.svg?columns=3)](https://repology.org/project/repro-env/versions)
 
@@ -58,8 +58,8 @@ With github actions:
 ```yaml
 - name: Install repro-env
   run: |
-    wget 'https://github.com/kpcyrd/repro-env/releases/download/v0.4.3/repro-env'
-    echo '2a00b21ac5e990e0c6a0ccbf3b91e34a073660d1f4553b5f3cda2b09cc4d4d8a  repro-env' | sha256sum -c -
+    wget 'https://github.com/kpcyrd/repro-env/releases/download/v0.4.5/repro-env'
+    echo 'd6a52bc7cfce4ff2e20dcdd01daf83968429f03f225178ef7f687f286a0d0ab4  repro-env' | sha256sum -c -
     sudo install -m755 repro-env -t /usr/bin
 ```
 
@@ -225,10 +225,10 @@ There are no inherent bootstrapping challenges, you can use any recent Rust comp
 All [pre-compiled binaries](https://github.com/kpcyrd/repro-env/releases) can be reproduced from source code:
 
 ```sh
-% wget https://github.com/kpcyrd/repro-env/releases/download/v0.4.3/repro-env
+% wget https://github.com/kpcyrd/repro-env/releases/download/v0.4.5/repro-env
 [...]
 % sha256sum repro-env
-2a00b21ac5e990e0c6a0ccbf3b91e34a073660d1f4553b5f3cda2b09cc4d4d8a  repro-env
+d6a52bc7cfce4ff2e20dcdd01daf83968429f03f225178ef7f687f286a0d0ab4  repro-env
 ```
 
 Since the build environment is fully documented and tracked in git all we need is checkout the corresponding git tag and run `make`:
@@ -236,10 +236,10 @@ Since the build environment is fully documented and tracked in git all we need i
 ```sh
 % git clone https://github.com/kpcyrd/repro-env
 % cd repro-env
-% git checkout v0.4.3
+% git checkout v0.4.5
 % make
 % sha256sum target/x86_64-unknown-linux-musl/release/repro-env
-2a00b21ac5e990e0c6a0ccbf3b91e34a073660d1f4553b5f3cda2b09cc4d4d8a  target/x86_64-unknown-linux-musl/release/repro-env
+d6a52bc7cfce4ff2e20dcdd01daf83968429f03f225178ef7f687f286a0d0ab4  target/x86_64-unknown-linux-musl/release/repro-env
 ```
 
 ## License
