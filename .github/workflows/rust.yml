@@ -17,6 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install dependencies
+      run: sudo apt-get install -y catatonit
+
     - name: 🏗️ Setup build cache
       uses: actions/cache@v4
       with:
@@ -121,6 +124,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
+
+      - name: Install dependencies
+        run: sudo apt-get install -y catatonit
 
       - name: 🏗️ Setup build cache
         uses: actions/cache@v4
