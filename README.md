@@ -84,6 +84,7 @@ The following projects use repro-env to publish independently verifiable release
 
 - [acme-redirect](https://github.com/kpcyrd/acme-redirect)
 - [aps](https://github.com/Antiz96/aps)
+- [arch-update](https://github.com/Antiz96/arch-update)
 - [apt.vulns.xyz](https://github.com/kpcyrd/apt-vulns-xyz)
 - [archlinux-userland-fs-cmp](https://github.com/kpcyrd/archlinux-userland-fs-cmp)
 - [ic-gateway](https://github.com/dfinity/ic-gateway)
