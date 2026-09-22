@@ -51,6 +51,8 @@ impl Manifest {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContainerManifest {
     pub image: String,
+    #[serde(default)]
+    pub bootstrap_cmd: Option<Vec<Vec<String>>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -77,6 +79,7 @@ image = "docker.io/library/rust:1-alpine"
             Manifest {
                 container: ContainerManifest {
                     image: "docker.io/library/rust:1-alpine".to_string(),
+                    bootstrap_cmd: None,
                 },
                 packages: None
             }

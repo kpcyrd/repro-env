@@ -234,6 +234,9 @@ pub async fn build(build: &args::Build) -> Result<()> {
         container::Config {
             mounts: &mounts,
             expose_fuse: false,
+            bootstrap_cmd: manifest
+                .as_ref()
+                .and_then(|m| m.container.bootstrap_cmd.as_deref()),
         },
     )
     .await?;
