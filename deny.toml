@@ -4,6 +4,7 @@
 [advisories]
 ignore = [
     { id = "RUSTSEC-2023-0071", reason = "this software never creates signatures" },
+    { id = "RUSTSEC-2026-0387", reason = "this software never creates signatures" },
     #"RUSTSEC-0000-0000",
 ]
 
