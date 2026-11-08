@@ -1,5 +1,13 @@
 [container]
-image = "docker.io/library/archlinux@sha256:42217d5f09e11d3fe7ad3b309b7fde891d458464dab5d674e629073765610427"
+image = "docker.io/library/archlinux@sha256:823e937464d1528b306a8e1137ef406b9c56e5fee43c7a19e93684d554af74e1"
+
+[[package]]
+name = "ca-certificates-mozilla"
+version = "3.133-1"
+system = "archlinux"
+url = "https://archive.archlinux.org/packages/c/ca-certificates-mozilla/ca-certificates-mozilla-3.133-1-x86_64.pkg.tar.zst"
+sha256 = "79cd453f56263cc36e0708c19f60dabad7ab6b2f5f9ba3c2437238e8f9b165c4"
+signature = "iHUEABYKAB0WIQSDvIiJNRtd67toQW64rAhgDxCM3wUCauuWMgAKCRC4rAhgDxCM39j1AP99Kx/U7whaHX1GNbz5q4qrN4GvEzt++evLtBE5284NzQEAxSUHpYA+6LeLYCmnYREWZNnGq4ekXs2FTWAGKQ18yAc="
 
 [[package]]
 name = "compiler-rt"
@@ -120,6 +128,14 @@ system = "archlinux"
 url = "https://archive.archlinux.org/packages/l/llvm-libs/llvm-libs-23.1.4-1-x86_64.pkg.tar.zst"
 sha256 = "033a4c9b70686f2dca142087961add7db81ae816d85eb060bee91d05461ec5bd"
 signature = "iHUEABYKAB0WIQQhkbiUMbrAqLlt6T0kR0DRfH/Q7AUCateB7QAKCRAkR0DRfH/Q7KG/AP9OKns9pnmwHZW+aUxeboKLoR1/FMkhgBzuYtFbDUkeJAEAk4hsW1fT6rGTi2R0lk/V3RsxhGY61PMrZnHkzKB6XgE="
+
+[[package]]
+name = "lz4"
+version = "1:1.11.0-1"
+system = "archlinux"
+url = "https://archive.archlinux.org/packages/l/lz4/lz4-1:1.11.0-1-x86_64.pkg.tar.zst"
+sha256 = "756746827d4a1507d59fc1cdc8baf0182e3f6189a80648e61d7172c5477d937b"
+signature = "iNUEABYKAH0WIQQFx3danouXdAf+COadTFqhVCbaCgUCautYpV8UgAAAAAAuAChpc3N1ZXItZnByQG5vdGF0aW9ucy5vcGVucGdwLmZpZnRoaG9yc2VtYW4ubmV0MDVDNzc3NUE5RThCOTc3NDA3RkUwOEU2OUQ0QzVBQTE1NDI2REEwQQAKCRCdTFqhVCbaCnWiAP9DBmMiTTaRYckPJq+fTrhWsl/FWEFNlkDkkIQy7LCgjgEA8MOXZwafdtKjOsl6CD8xgtfYTjXV7UHZ6mTruLmJ2QE="
 
 [[package]]
 name = "make"
