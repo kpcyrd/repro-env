@@ -152,6 +152,7 @@ pub async fn inspect(image: &str) -> Result<Image> {
 pub struct Config<'a> {
     pub mounts: &'a [(String, String)],
     pub expose_fuse: bool,
+    pub bootstrap_cmd: Option<&'a [Vec<String>]>,
 }
 
 #[derive(Debug, Default)]
@@ -203,7 +204,35 @@ impl Container {
             out.truncate(idx);
         }
         let id = String::from_utf8(out)?;
-        Ok(Container { id })
+
+        // Run bootstrap commands immediately after creation
+        let container = Container { id };
+        if let Some(cmds) = config.bootstrap_cmd {
+            container.run_bootstrap(cmds).await?;
+        }
+        Ok(container)
+    }
+
+    pub async fn run_bootstrap(&self, cmds: &[Vec<String>]) -> Result<()> {
+        for cmd in cmds {
+            debug!("Running bootstrap command: {:?}", cmd);
+            if let Err(e) = self
+                .exec(
+                    cmd,
+                    Exec {
+                        capture_stdout: false,
+                        cwd: Some("/"),
+                        user: None,
+                        env: &[],
+                    },
+                )
+                .await
+            {
+                let _ = self.kill().await;
+                return Err(e);
+            }
+        }
+        Ok(())
     }
 
     pub async fn exec<I, S>(&self, args: I, options: Exec<'_>) -> Result<Vec<u8>>
