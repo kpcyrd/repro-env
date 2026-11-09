@@ -89,6 +89,7 @@ The following projects use repro-env to publish independently verifiable release
 - [archlinux-userland-fs-cmp](https://github.com/kpcyrd/archlinux-userland-fs-cmp)
 - [ic-gateway](https://github.com/dfinity/ic-gateway)
 - [ic-http-lb](https://github.com/dfinity/ic-http-lb)
+- [incrust](https://github.com/Antiz96/incrust)
 - [lungo](https://github.com/Antiz96/lungo)
 - [manora](https://github.com/Antiz96/manora)
 - [oniri](https://github.com/Antiz96/oniri)
